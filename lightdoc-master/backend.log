@@ -1,0 +1,524 @@
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] -----------------------< com.lightdoc:lightdoc >------------------------
+[INFO] Building lightdoc 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] >>> spring-boot:3.2.3:run (default-cli) > test-compile @ lightdoc >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ lightdoc ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 3 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ lightdoc ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ lightdoc ---
+[INFO] skip non existing resourceDirectory C:\Users\23128\Desktop\light-doc-new\lightdoc-master\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ lightdoc ---
+[INFO] Nothing to compile - all classes are up to date
+[INFO] 
+[INFO] <<< spring-boot:3.2.3:run (default-cli) < test-compile @ lightdoc <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.2.3:run (default-cli) @ lightdoc ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::                (v3.2.3)
+
+2025-11-27 21:33:53 [main] INFO  com.lightdoc.LightdocApplication - Starting LightdocApplication using Java 21.0.5 with PID 15888 (C:\Users\23128\Desktop\light-doc-new\lightdoc-master\target\classes started by 23128 in C:\Users\23128\Desktop\light-doc-new\lightdoc-master)
+2025-11-27 21:33:53 [main] DEBUG com.lightdoc.LightdocApplication - Running with Spring Boot v3.2.3, Spring v6.1.4
+2025-11-27 21:33:53 [main] INFO  com.lightdoc.LightdocApplication - No active profile set, falling back to 1 default profile: "default"
+2025-11-27 21:33:55 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat initialized with port 8080 (http)
+2025-11-27 21:33:55 [main] INFO  org.apache.catalina.core.StandardService - Starting service [Tomcat]
+2025-11-27 21:33:55 [main] INFO  org.apache.catalina.core.StandardEngine - Starting Servlet engine: [Apache Tomcat/10.1.19]
+2025-11-27 21:33:55 [main] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring embedded WebApplicationContext
+2025-11-27 21:33:55 [main] INFO  o.s.b.w.s.c.ServletWebServerApplicationContext - Root WebApplicationContext: initialization completed in 1076 ms
+Logging initialized using 'class org.apache.ibatis.logging.stdout.StdOutImpl' adapter.
+Initialization Sequence datacenterId:2 workerId:2
+ _ _   |_  _ _|_. ___ _ |    _ 
+| | |\/|_)(_| | |_\  |_)||_|_\ 
+     /               |         
+                        3.5.5 
+2025-11-27 21:33:55 [main] DEBUG com.lightdoc.filter.JwtAuthenticationFilter - Filter 'jwtAuthenticationFilter' configured for use
+2025-11-27 21:33:56 [main] INFO  o.s.security.web.DefaultSecurityFilterChain - Will secure any request with [org.springframework.security.web.session.DisableEncodeUrlFilter@8d810f2, org.springframework.security.web.context.request.async.WebAsyncManagerIntegrationFilter@537b3be1, org.springframework.security.web.context.SecurityContextHolderFilter@5d58dc61, org.springframework.security.web.header.HeaderWriterFilter@cf08c97, org.springframework.web.filter.CorsFilter@15d58530, org.springframework.security.web.authentication.logout.LogoutFilter@58021c3c, com.lightdoc.filter.JwtAuthenticationFilter@1ac730cd, org.springframework.security.web.savedrequest.RequestCacheAwareFilter@17df689e, org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter@21540255, org.springframework.security.web.authentication.AnonymousAuthenticationFilter@31f5b923, org.springframework.security.web.session.SessionManagementFilter@11bfd751, org.springframework.security.web.access.ExceptionTranslationFilter@be616f0, org.springframework.security.web.access.intercept.AuthorizationFilter@2f6e92ca]
+2025-11-27 21:33:56 [main] INFO  o.s.boot.web.embedded.tomcat.TomcatWebServer - Tomcat started on port 8080 (http) with context path '/api'
+2025-11-27 21:33:56 [main] INFO  com.lightdoc.LightdocApplication - Started LightdocApplication in 2.837 seconds (process running for 3.327)
+2025-11-27 21:33:56 [http-nio-8080-exec-1] INFO  o.a.c.c.ContainerBase.[Tomcat].[localhost].[/api] - Initializing Spring DispatcherServlet 'dispatcherServlet'
+2025-11-27 21:33:56 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Initializing Servlet 'dispatcherServlet'
+2025-11-27 21:33:56 [http-nio-8080-exec-1] INFO  org.springframework.web.servlet.DispatcherServlet - Completed initialization in 1 ms
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@1ca4f81f] was not registered for synchronization because synchronization is not active
+2025-11-27 21:33:56 [http-nio-8080-exec-1] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Starting...
+2025-11-27 21:33:56 [http-nio-8080-exec-1] INFO  com.zaxxer.hikari.pool.HikariPool - HikariPool-1 - Added connection com.mysql.cj.jdbc.ConnectionImpl@d3c3981
+2025-11-27 21:33:57 [http-nio-8080-exec-1] INFO  com.zaxxer.hikari.HikariDataSource - HikariPool-1 - Start completed.
+JDBC Connection [HikariProxyConnection@1310829443 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@1ca4f81f]
+2025-11-27 21:33:57 [http-nio-8080-exec-1] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å»ºç«‹: 297a0b19-e069-07d5-130d-cd582eb57d41
+2025-11-27 21:33:57 [http-nio-8080-exec-1] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 åŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:33:57 [http-nio-8080-exec-1] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 æˆåŠŸåŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@57a0b93f] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1499946427 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@57a0b93f]
+2025-11-27 21:33:59 [http-nio-8080-exec-2] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å»ºç«‹: d0501814-1091-9433-67e8-08b56863b7bc
+2025-11-27 21:33:59 [http-nio-8080-exec-2] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 åŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:33:59 [http-nio-8080-exec-2] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 æˆåŠŸåŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:33:59 [http-nio-8080-exec-3] DEBUG com.lightdoc.handler.CollaborativeEditorHandler - æ”¶åˆ°WebSocketäºŒè¿›åˆ¶æ¶ˆæ¯ï¼Œå¤§å°: 4 bytes
+2025-11-27 21:33:59 [http-nio-8080-exec-3] DEBUG c.lightdoc.service.impl.CollaborativeServiceImpl - å¤„ç†YjsåŒæ­¥æ¶ˆæ¯: documentId=3, userId=4, type=0
+2025-11-27 21:33:59 [http-nio-8080-exec-3] DEBUG com.lightdoc.handler.CollaborativeEditorHandler - æ”¶åˆ°WebSocketäºŒè¿›åˆ¶æ¶ˆæ¯ï¼Œå¤§å°: 12 bytes
+2025-11-27 21:33:59 [http-nio-8080-exec-3] DEBUG c.lightdoc.service.impl.CollaborativeServiceImpl - å¤„ç†YjsåŒæ­¥æ¶ˆæ¯: documentId=3, userId=4, type=1
+2025-11-27 21:33:59 [http-nio-8080-exec-6] DEBUG com.lightdoc.handler.CollaborativeEditorHandler - æ”¶åˆ°WebSocketäºŒè¿›åˆ¶æ¶ˆæ¯ï¼Œå¤§å°: 12 bytes
+2025-11-27 21:33:59 [http-nio-8080-exec-6] DEBUG c.lightdoc.service.impl.CollaborativeServiceImpl - å¤„ç†YjsåŒæ­¥æ¶ˆæ¯: documentId=3, userId=4, type=1
+2025-11-27 21:34:16 [http-nio-8080-exec-4] DEBUG com.lightdoc.handler.CollaborativeEditorHandler - æ”¶åˆ°WebSocketäºŒè¿›åˆ¶æ¶ˆæ¯ï¼Œå¤§å°: 12 bytes
+2025-11-27 21:34:16 [http-nio-8080-exec-4] DEBUG c.lightdoc.service.impl.CollaborativeServiceImpl - å¤„ç†YjsåŒæ­¥æ¶ˆæ¯: documentId=3, userId=4, type=1
+2025-11-27 21:34:17 [http-nio-8080-exec-9] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å…³é—­: 297a0b19-e069-07d5-130d-cd582eb57d41, çŠ¶æ€: CloseStatus[code=1001, reason=null]
+2025-11-27 21:34:17 [http-nio-8080-exec-8] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å…³é—­: d0501814-1091-9433-67e8-08b56863b7bc, çŠ¶æ€: CloseStatus[code=1001, reason=null]
+2025-11-27 21:34:17 [http-nio-8080-exec-9] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:34:17 [http-nio-8080-exec-8] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:34:17 [http-nio-8080-exec-8] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 å·²ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:34:17 [http-nio-8080-exec-9] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 å·²ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6d54e45a] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1670584192 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6d54e45a]
+2025-11-27 21:34:18 [http-nio-8080-exec-5] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å»ºç«‹: b1faa3fc-9beb-03e9-614f-1d93255f21fe
+2025-11-27 21:34:18 [http-nio-8080-exec-5] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 åŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:34:18 [http-nio-8080-exec-5] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 æˆåŠŸåŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@67b58633] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1769108661 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@67b58633]
+2025-11-27 21:34:18 [http-nio-8080-exec-10] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å»ºç«‹: dec1ee60-b4a2-0498-87bd-eefc6c0ef38a
+2025-11-27 21:34:18 [http-nio-8080-exec-10] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 åŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:34:18 [http-nio-8080-exec-10] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 æˆåŠŸåŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:34:18 [http-nio-8080-exec-7] DEBUG com.lightdoc.handler.CollaborativeEditorHandler - æ”¶åˆ°WebSocketäºŒè¿›åˆ¶æ¶ˆæ¯ï¼Œå¤§å°: 4 bytes
+2025-11-27 21:34:18 [http-nio-8080-exec-7] DEBUG c.lightdoc.service.impl.CollaborativeServiceImpl - å¤„ç†YjsåŒæ­¥æ¶ˆæ¯: documentId=3, userId=4, type=0
+2025-11-27 21:34:18 [http-nio-8080-exec-7] DEBUG com.lightdoc.handler.CollaborativeEditorHandler - æ”¶åˆ°WebSocketäºŒè¿›åˆ¶æ¶ˆæ¯ï¼Œå¤§å°: 11 bytes
+2025-11-27 21:34:18 [http-nio-8080-exec-7] DEBUG c.lightdoc.service.impl.CollaborativeServiceImpl - å¤„ç†YjsåŒæ­¥æ¶ˆæ¯: documentId=3, userId=4, type=1
+2025-11-27 21:34:31 [http-nio-8080-exec-2] DEBUG com.lightdoc.handler.CollaborativeEditorHandler - æ”¶åˆ°WebSocketäºŒè¿›åˆ¶æ¶ˆæ¯ï¼Œå¤§å°: 13 bytes
+2025-11-27 21:34:31 [http-nio-8080-exec-1] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å…³é—­: b1faa3fc-9beb-03e9-614f-1d93255f21fe, çŠ¶æ€: CloseStatus[code=1000, reason=null]
+2025-11-27 21:34:31 [http-nio-8080-exec-1] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:34:31 [http-nio-8080-exec-2] DEBUG c.lightdoc.service.impl.CollaborativeServiceImpl - å¤„ç†YjsåŒæ­¥æ¶ˆæ¯: documentId=3, userId=4, type=1
+2025-11-27 21:34:31 [http-nio-8080-exec-1] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 å·²ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:34:31 [http-nio-8080-exec-2] DEBUG com.lightdoc.handler.CollaborativeEditorHandler - æ”¶åˆ°WebSocketäºŒè¿›åˆ¶æ¶ˆæ¯ï¼Œå¤§å°: 11 bytes
+2025-11-27 21:34:31 [http-nio-8080-exec-2] DEBUG c.lightdoc.service.impl.CollaborativeServiceImpl - å¤„ç†YjsåŒæ­¥æ¶ˆæ¯: documentId=3, userId=4, type=1
+2025-11-27 21:34:31 [http-nio-8080-exec-2] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å…³é—­: dec1ee60-b4a2-0498-87bd-eefc6c0ef38a, çŠ¶æ€: CloseStatus[code=1000, reason=null]
+2025-11-27 21:34:31 [http-nio-8080-exec-2] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:34:31 [http-nio-8080-exec-2] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 å·²ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4ba6f060] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1493595925 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4ba6f060]
+2025-11-27 21:34:31 [http-nio-8080-exec-3] INFO  com.lightdoc.controller.DocumentController - æ¥æ”¶åˆ°çš„Authorizationå¤´: Bearer eyJhbGciOiJIU...
+2025-11-27 21:34:31 [http-nio-8080-exec-3] INFO  com.lightdoc.controller.DocumentController - æå–çš„token(å‰50å­—ç¬¦): eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiLmnajlnaTpsrIiLCJle
+2025-11-27 21:34:31 [http-nio-8080-exec-3] INFO  com.lightdoc.controller.DocumentController - TokenéªŒè¯æˆåŠŸ
+2025-11-27 21:34:31 [http-nio-8080-exec-3] INFO  com.lightdoc.controller.DocumentController - ä»tokenæå–çš„ç”¨æˆ·å: æ¨å¤é²²
+2025-11-27 21:34:31 [http-nio-8080-exec-3] INFO  com.lightdoc.controller.DocumentController - ä»tokenæå–çš„ç”¨æˆ·ID: 4
+2025-11-27 21:34:31 [http-nio-8080-exec-3] INFO  com.lightdoc.service.impl.DocumentServiceImpl - æŸ¥è¯¢æ–‡æ¡£åˆ—è¡¨ï¼Œç”¨æˆ·ID: 4, æŸ¥è¯¢æ¡ä»¶: DocumentQueryDTO(title=null, documentType=null, ownerId=null, parentId=null, isFolder=null, status=null, isPublic=null, tags=null, page=1, size=10)
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5db58ef0] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@499566868 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,title,document_type,file_path,file_size,owner_id,parent_id,is_folder,status,version,word_count,tags,permission_level,is_public,cover_url,summary,view_count,favorite_count,comment_count,created_at,updated_at,deleted_at FROM documents WHERE ((owner_id = ? OR is_public = ?))
+==> Parameters: 4(Long), true(Boolean)
+<==    Columns: id, title, document_type, file_path, file_size, owner_id, parent_id, is_folder, status, version, word_count, tags, permission_level, is_public, cover_url, summary, view_count, favorite_count, comment_count, created_at, updated_at, deleted_at
+<==        Row: 3, Ê¾ÀıÎÄµµ, application/octet-stream, snapshots/3/full_7.bin, 47, 4, null, 0, 0, 7, 0, À¤À¤, 0, 0, null, <<BLOB>>, 20, 0, 0, null, 2025-11-27 19:05:45, null
+<==        Row: 4, Ó¢Óï×÷ÎÄ, application/octet-stream, snapshots/4/initial.bin, 14744, 4, null, 0, 0, 1, 0, null, 0, 0, null, <<BLOB>>, 3, 0, 0, null, null, null
+<==        Row: 5, »¶Ó­Ê¹ÓÃLightDoc, yjs, snapshots/1/full_1.bin, 2048, 1, null, 0, 1, 1, 150, »¶Ó­,Ê¾Àı,Ğ­Í¬±à¼­, 1, 1, null, <<BLOB>>, 0, 0, 0, 2025-11-27 18:57:28, 2025-11-27 18:57:28, null
+<==        Row: 6, ±ÏÒµÉè¼Æ(ÂÛÎÄ)ÌâÄ¿ÉóÅú±í2026½ì, application/octet-stream, snapshots/6/full_3.bin, 47, 4, null, 0, 0, 3, 0, null, 0, 0, null, <<BLOB>>, 18, 0, 0, null, 2025-11-27 19:49:42, null
+<==      Total: 4
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5db58ef0]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@14dc8788] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@429875572 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@14dc8788]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2e5aaa01] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1581947013 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2e5aaa01]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5a457af8] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@557107475 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 1(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 1, admin, admin@example.com, $2a$10$YourHashedPasswordHere, ¹ÜÀíÔ±, null, 2025-11-27 14:17:37, 2025-11-27 14:17:37
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5a457af8]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@71e17381] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@8541695 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@71e17381]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@23c27660] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@755338344 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@23c27660]
+2025-11-27 21:34:35 [http-nio-8080-exec-6] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å»ºç«‹: 5903c0ab-0c63-7bac-0bff-1d8ff9be314f
+2025-11-27 21:34:35 [http-nio-8080-exec-6] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 åŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:34:35 [http-nio-8080-exec-6] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 æˆåŠŸåŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:38:02 [http-nio-8080-exec-9] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å…³é—­: 5903c0ab-0c63-7bac-0bff-1d8ff9be314f, çŠ¶æ€: CloseStatus[code=1001, reason=null]
+2025-11-27 21:38:02 [http-nio-8080-exec-9] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:38:02 [http-nio-8080-exec-9] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 å·²ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2251891f] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@748053285 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2251891f]
+2025-11-27 21:38:03 [http-nio-8080-exec-8] INFO  com.lightdoc.controller.DocumentController - æ¥æ”¶åˆ°çš„Authorizationå¤´: Bearer eyJhbGciOiJIU...
+2025-11-27 21:38:03 [http-nio-8080-exec-8] INFO  com.lightdoc.controller.DocumentController - æå–çš„token(å‰50å­—ç¬¦): eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiLmnajlnaTpsrIiLCJle
+2025-11-27 21:38:03 [http-nio-8080-exec-8] INFO  com.lightdoc.controller.DocumentController - TokenéªŒè¯æˆåŠŸ
+2025-11-27 21:38:03 [http-nio-8080-exec-8] INFO  com.lightdoc.controller.DocumentController - ä»tokenæå–çš„ç”¨æˆ·å: æ¨å¤é²²
+2025-11-27 21:38:03 [http-nio-8080-exec-8] INFO  com.lightdoc.controller.DocumentController - ä»tokenæå–çš„ç”¨æˆ·ID: 4
+2025-11-27 21:38:03 [http-nio-8080-exec-8] INFO  com.lightdoc.service.impl.DocumentServiceImpl - æŸ¥è¯¢æ–‡æ¡£åˆ—è¡¨ï¼Œç”¨æˆ·ID: 4, æŸ¥è¯¢æ¡ä»¶: DocumentQueryDTO(title=null, documentType=null, ownerId=null, parentId=null, isFolder=null, status=null, isPublic=null, tags=null, page=1, size=10)
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6dab691e] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1134300357 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,title,document_type,file_path,file_size,owner_id,parent_id,is_folder,status,version,word_count,tags,permission_level,is_public,cover_url,summary,view_count,favorite_count,comment_count,created_at,updated_at,deleted_at FROM documents WHERE ((owner_id = ? OR is_public = ?))
+==> Parameters: 4(Long), true(Boolean)
+<==    Columns: id, title, document_type, file_path, file_size, owner_id, parent_id, is_folder, status, version, word_count, tags, permission_level, is_public, cover_url, summary, view_count, favorite_count, comment_count, created_at, updated_at, deleted_at
+<==        Row: 3, Ê¾ÀıÎÄµµ, application/octet-stream, snapshots/3/full_7.bin, 47, 4, null, 0, 0, 7, 0, À¤À¤, 0, 0, null, <<BLOB>>, 20, 0, 0, null, 2025-11-27 19:05:45, null
+<==        Row: 4, Ó¢Óï×÷ÎÄ, application/octet-stream, snapshots/4/initial.bin, 14744, 4, null, 0, 0, 1, 0, null, 0, 0, null, <<BLOB>>, 3, 0, 0, null, null, null
+<==        Row: 5, »¶Ó­Ê¹ÓÃLightDoc, yjs, snapshots/1/full_1.bin, 2048, 1, null, 0, 1, 1, 150, »¶Ó­,Ê¾Àı,Ğ­Í¬±à¼­, 1, 1, null, <<BLOB>>, 0, 0, 0, 2025-11-27 18:57:28, 2025-11-27 18:57:28, null
+<==        Row: 6, ±ÏÒµÉè¼Æ(ÂÛÎÄ)ÌâÄ¿ÉóÅú±í2026½ì, application/octet-stream, snapshots/6/full_3.bin, 47, 4, null, 0, 0, 3, 0, null, 0, 0, null, <<BLOB>>, 18, 0, 0, null, 2025-11-27 19:49:42, null
+<==      Total: 4
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6dab691e]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@3b51fbbc] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@226793041 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@3b51fbbc]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@14edd603] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@542462777 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@14edd603]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4d1b221c] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@935110770 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 1(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 1, admin, admin@example.com, $2a$10$YourHashedPasswordHere, ¹ÜÀíÔ±, null, 2025-11-27 14:17:37, 2025-11-27 14:17:37
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4d1b221c]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6791c07b] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1938687319 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@6791c07b]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@18a398aa] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@185866496 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@18a398aa]
+2025-11-27 21:38:05 [http-nio-8080-exec-5] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å»ºç«‹: 1e029b98-89cd-454b-74e5-702408e8c06a
+2025-11-27 21:38:05 [http-nio-8080-exec-5] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 åŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:38:05 [http-nio-8080-exec-5] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 æˆåŠŸåŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:38:21 [http-nio-8080-exec-10] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å…³é—­: 1e029b98-89cd-454b-74e5-702408e8c06a, çŠ¶æ€: CloseStatus[code=1000, reason=null]
+2025-11-27 21:38:21 [http-nio-8080-exec-10] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:38:21 [http-nio-8080-exec-10] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 å·²ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2f665c20] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@564246460 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2f665c20]
+2025-11-27 21:38:21 [http-nio-8080-exec-7] INFO  com.lightdoc.controller.DocumentController - æ¥æ”¶åˆ°çš„Authorizationå¤´: Bearer eyJhbGciOiJIU...
+2025-11-27 21:38:21 [http-nio-8080-exec-7] INFO  com.lightdoc.controller.DocumentController - æå–çš„token(å‰50å­—ç¬¦): eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiLmnajlnaTpsrIiLCJle
+2025-11-27 21:38:21 [http-nio-8080-exec-7] INFO  com.lightdoc.controller.DocumentController - TokenéªŒè¯æˆåŠŸ
+2025-11-27 21:38:21 [http-nio-8080-exec-7] INFO  com.lightdoc.controller.DocumentController - ä»tokenæå–çš„ç”¨æˆ·å: æ¨å¤é²²
+2025-11-27 21:38:21 [http-nio-8080-exec-7] INFO  com.lightdoc.controller.DocumentController - ä»tokenæå–çš„ç”¨æˆ·ID: 4
+2025-11-27 21:38:21 [http-nio-8080-exec-7] INFO  com.lightdoc.service.impl.DocumentServiceImpl - æŸ¥è¯¢æ–‡æ¡£åˆ—è¡¨ï¼Œç”¨æˆ·ID: 4, æŸ¥è¯¢æ¡ä»¶: DocumentQueryDTO(title=null, documentType=null, ownerId=null, parentId=null, isFolder=null, status=null, isPublic=null, tags=null, page=1, size=10)
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@609cbd87] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@2105961192 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,title,document_type,file_path,file_size,owner_id,parent_id,is_folder,status,version,word_count,tags,permission_level,is_public,cover_url,summary,view_count,favorite_count,comment_count,created_at,updated_at,deleted_at FROM documents WHERE ((owner_id = ? OR is_public = ?))
+==> Parameters: 4(Long), true(Boolean)
+<==    Columns: id, title, document_type, file_path, file_size, owner_id, parent_id, is_folder, status, version, word_count, tags, permission_level, is_public, cover_url, summary, view_count, favorite_count, comment_count, created_at, updated_at, deleted_at
+<==        Row: 3, Ê¾ÀıÎÄµµ, application/octet-stream, snapshots/3/full_7.bin, 47, 4, null, 0, 0, 7, 0, À¤À¤, 0, 0, null, <<BLOB>>, 20, 0, 0, null, 2025-11-27 19:05:45, null
+<==        Row: 4, Ó¢Óï×÷ÎÄ, application/octet-stream, snapshots/4/initial.bin, 14744, 4, null, 0, 0, 1, 0, null, 0, 0, null, <<BLOB>>, 3, 0, 0, null, null, null
+<==        Row: 5, »¶Ó­Ê¹ÓÃLightDoc, yjs, snapshots/1/full_1.bin, 2048, 1, null, 0, 1, 1, 150, »¶Ó­,Ê¾Àı,Ğ­Í¬±à¼­, 1, 1, null, <<BLOB>>, 0, 0, 0, 2025-11-27 18:57:28, 2025-11-27 18:57:28, null
+<==        Row: 6, ±ÏÒµÉè¼Æ(ÂÛÎÄ)ÌâÄ¿ÉóÅú±í2026½ì, application/octet-stream, snapshots/6/full_3.bin, 47, 4, null, 0, 0, 3, 0, null, 0, 0, null, <<BLOB>>, 18, 0, 0, null, 2025-11-27 19:49:42, null
+<==      Total: 4
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@609cbd87]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@546b762] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@11748040 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@546b762]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2e8f45dc] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@507648712 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2e8f45dc]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2f321300] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@2076643999 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 1(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 1, admin, admin@example.com, $2a$10$YourHashedPasswordHere, ¹ÜÀíÔ±, null, 2025-11-27 14:17:37, 2025-11-27 14:17:37
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@2f321300]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@1cbf38fa] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@598381182 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@1cbf38fa]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4213a054] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1497404006 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4213a054]
+2025-11-27 21:38:24 [http-nio-8080-exec-1] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å»ºç«‹: 66663fa6-39bf-f7cf-7d22-ff5a733554b4
+2025-11-27 21:38:24 [http-nio-8080-exec-1] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 åŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:38:24 [http-nio-8080-exec-1] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 æˆåŠŸåŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:39:17 [http-nio-8080-exec-2] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å…³é—­: 66663fa6-39bf-f7cf-7d22-ff5a733554b4, çŠ¶æ€: CloseStatus[code=1001, reason=null]
+2025-11-27 21:39:17 [http-nio-8080-exec-2] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:39:17 [http-nio-8080-exec-2] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 å·²ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4f5ea7a] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1578623257 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4f5ea7a]
+2025-11-27 21:39:17 [http-nio-8080-exec-3] INFO  com.lightdoc.controller.DocumentController - æ¥æ”¶åˆ°çš„Authorizationå¤´: Bearer eyJhbGciOiJIU...
+2025-11-27 21:39:17 [http-nio-8080-exec-3] INFO  com.lightdoc.controller.DocumentController - æå–çš„token(å‰50å­—ç¬¦): eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiLmnajlnaTpsrIiLCJle
+2025-11-27 21:39:17 [http-nio-8080-exec-3] INFO  com.lightdoc.controller.DocumentController - TokenéªŒè¯æˆåŠŸ
+2025-11-27 21:39:17 [http-nio-8080-exec-3] INFO  com.lightdoc.controller.DocumentController - ä»tokenæå–çš„ç”¨æˆ·å: æ¨å¤é²²
+2025-11-27 21:39:17 [http-nio-8080-exec-3] INFO  com.lightdoc.controller.DocumentController - ä»tokenæå–çš„ç”¨æˆ·ID: 4
+2025-11-27 21:39:17 [http-nio-8080-exec-3] INFO  com.lightdoc.service.impl.DocumentServiceImpl - æŸ¥è¯¢æ–‡æ¡£åˆ—è¡¨ï¼Œç”¨æˆ·ID: 4, æŸ¥è¯¢æ¡ä»¶: DocumentQueryDTO(title=null, documentType=null, ownerId=null, parentId=null, isFolder=null, status=null, isPublic=null, tags=null, page=1, size=10)
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@40ee6963] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1810103614 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,title,document_type,file_path,file_size,owner_id,parent_id,is_folder,status,version,word_count,tags,permission_level,is_public,cover_url,summary,view_count,favorite_count,comment_count,created_at,updated_at,deleted_at FROM documents WHERE ((owner_id = ? OR is_public = ?))
+==> Parameters: 4(Long), true(Boolean)
+<==    Columns: id, title, document_type, file_path, file_size, owner_id, parent_id, is_folder, status, version, word_count, tags, permission_level, is_public, cover_url, summary, view_count, favorite_count, comment_count, created_at, updated_at, deleted_at
+<==        Row: 3, Ê¾ÀıÎÄµµ, application/octet-stream, snapshots/3/full_7.bin, 47, 4, null, 0, 0, 7, 0, À¤À¤, 0, 0, null, <<BLOB>>, 20, 0, 0, null, 2025-11-27 19:05:45, null
+<==        Row: 4, Ó¢Óï×÷ÎÄ, application/octet-stream, snapshots/4/initial.bin, 14744, 4, null, 0, 0, 1, 0, null, 0, 0, null, <<BLOB>>, 3, 0, 0, null, null, null
+<==        Row: 5, »¶Ó­Ê¹ÓÃLightDoc, yjs, snapshots/1/full_1.bin, 2048, 1, null, 0, 1, 1, 150, »¶Ó­,Ê¾Àı,Ğ­Í¬±à¼­, 1, 1, null, <<BLOB>>, 0, 0, 0, 2025-11-27 18:57:28, 2025-11-27 18:57:28, null
+<==        Row: 6, ±ÏÒµÉè¼Æ(ÂÛÎÄ)ÌâÄ¿ÉóÅú±í2026½ì, application/octet-stream, snapshots/6/full_3.bin, 47, 4, null, 0, 0, 3, 0, null, 0, 0, null, <<BLOB>>, 18, 0, 0, null, 2025-11-27 19:49:42, null
+<==      Total: 4
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@40ee6963]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@7fe68614] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1282432506 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@7fe68614]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5cc42c62] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@391759816 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5cc42c62]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@13d6b359] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1854683773 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 1(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 1, admin, admin@example.com, $2a$10$YourHashedPasswordHere, ¹ÜÀíÔ±, null, 2025-11-27 14:17:37, 2025-11-27 14:17:37
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@13d6b359]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@289f8426] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@250983959 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@289f8426]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@30c5fccf] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1060192465 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@30c5fccf]
+2025-11-27 21:39:18 [http-nio-8080-exec-6] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å»ºç«‹: 2aed1bdc-84a4-102e-3c6d-97acffaf0e71
+2025-11-27 21:39:18 [http-nio-8080-exec-6] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 åŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:39:18 [http-nio-8080-exec-6] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 æˆåŠŸåŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:39:30 [http-nio-8080-exec-4] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å…³é—­: 2aed1bdc-84a4-102e-3c6d-97acffaf0e71, çŠ¶æ€: CloseStatus[code=1000, reason=null]
+2025-11-27 21:39:30 [http-nio-8080-exec-4] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:39:30 [http-nio-8080-exec-4] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 å·²ç¦»å¼€æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@39b16b54] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@58487379 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@39b16b54]
+2025-11-27 21:39:30 [http-nio-8080-exec-9] INFO  com.lightdoc.controller.DocumentController - æ¥æ”¶åˆ°çš„Authorizationå¤´: Bearer eyJhbGciOiJIU...
+2025-11-27 21:39:30 [http-nio-8080-exec-9] INFO  com.lightdoc.controller.DocumentController - æå–çš„token(å‰50å­—ç¬¦): eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiLmnajlnaTpsrIiLCJle
+2025-11-27 21:39:30 [http-nio-8080-exec-9] INFO  com.lightdoc.controller.DocumentController - TokenéªŒè¯æˆåŠŸ
+2025-11-27 21:39:30 [http-nio-8080-exec-9] INFO  com.lightdoc.controller.DocumentController - ä»tokenæå–çš„ç”¨æˆ·å: æ¨å¤é²²
+2025-11-27 21:39:30 [http-nio-8080-exec-9] INFO  com.lightdoc.controller.DocumentController - ä»tokenæå–çš„ç”¨æˆ·ID: 4
+2025-11-27 21:39:30 [http-nio-8080-exec-9] INFO  com.lightdoc.service.impl.DocumentServiceImpl - æŸ¥è¯¢æ–‡æ¡£åˆ—è¡¨ï¼Œç”¨æˆ·ID: 4, æŸ¥è¯¢æ¡ä»¶: DocumentQueryDTO(title=null, documentType=null, ownerId=null, parentId=null, isFolder=null, status=null, isPublic=null, tags=null, page=1, size=10)
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@52abdcac] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1626535526 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,title,document_type,file_path,file_size,owner_id,parent_id,is_folder,status,version,word_count,tags,permission_level,is_public,cover_url,summary,view_count,favorite_count,comment_count,created_at,updated_at,deleted_at FROM documents WHERE ((owner_id = ? OR is_public = ?))
+==> Parameters: 4(Long), true(Boolean)
+<==    Columns: id, title, document_type, file_path, file_size, owner_id, parent_id, is_folder, status, version, word_count, tags, permission_level, is_public, cover_url, summary, view_count, favorite_count, comment_count, created_at, updated_at, deleted_at
+<==        Row: 3, Ê¾ÀıÎÄµµ, application/octet-stream, snapshots/3/full_7.bin, 47, 4, null, 0, 0, 7, 0, À¤À¤, 0, 0, null, <<BLOB>>, 20, 0, 0, null, 2025-11-27 19:05:45, null
+<==        Row: 4, Ó¢Óï×÷ÎÄ, application/octet-stream, snapshots/4/initial.bin, 14744, 4, null, 0, 0, 1, 0, null, 0, 0, null, <<BLOB>>, 3, 0, 0, null, null, null
+<==        Row: 5, »¶Ó­Ê¹ÓÃLightDoc, yjs, snapshots/1/full_1.bin, 2048, 1, null, 0, 1, 1, 150, »¶Ó­,Ê¾Àı,Ğ­Í¬±à¼­, 1, 1, null, <<BLOB>>, 0, 0, 0, 2025-11-27 18:57:28, 2025-11-27 18:57:28, null
+<==        Row: 6, ±ÏÒµÉè¼Æ(ÂÛÎÄ)ÌâÄ¿ÉóÅú±í2026½ì, application/octet-stream, snapshots/6/full_3.bin, 47, 4, null, 0, 0, 3, 0, null, 0, 0, null, <<BLOB>>, 18, 0, 0, null, 2025-11-27 19:49:42, null
+<==      Total: 4
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@52abdcac]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@21d37fc2] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1186858975 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@21d37fc2]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5dadda11] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1740280585 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@5dadda11]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@54cc5ba2] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1736605304 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 1(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 1, admin, admin@example.com, $2a$10$YourHashedPasswordHere, ¹ÜÀíÔ±, null, 2025-11-27 14:17:37, 2025-11-27 14:17:37
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@54cc5ba2]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@622f0b16] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@1409834426 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE id=?
+==> Parameters: 4(Long)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@622f0b16]
+Creating a new SqlSession
+SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4bfaaabe] was not registered for synchronization because synchronization is not active
+JDBC Connection [HikariProxyConnection@578890146 wrapping com.mysql.cj.jdbc.ConnectionImpl@d3c3981] will not be managed by Spring
+==>  Preparing: SELECT id,username,email,password_hash,nickname,avatar_url,created_at,updated_at FROM users WHERE (username = ? OR email = ?)
+==> Parameters: ÑîÀ¤öï(String), ÑîÀ¤öï(String)
+<==    Columns: id, username, email, password_hash, nickname, avatar_url, created_at, updated_at
+<==        Row: 4, ÑîÀ¤öï, 2312892148@qq.com, $2a$10$oPNAUnSLUynRGTQFLsrODOCrxySUSnyLuWQ5VvqZUXIs9UfmlnUQ6, null, null, null, null
+<==      Total: 1
+Closing non transactional SqlSession [org.apache.ibatis.session.defaults.DefaultSqlSession@4bfaaabe]
+2025-11-27 21:39:34 [http-nio-8080-exec-8] INFO  com.lightdoc.handler.CollaborativeEditorHandler - WebSocketè¿æ¥å·²å»ºç«‹: e50bbefc-a14b-56a8-8655-6fb4f1967b90
+2025-11-27 21:39:34 [http-nio-8080-exec-8] INFO  c.lightdoc.service.impl.CollaborativeServiceImpl - ç”¨æˆ· 4 åŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+2025-11-27 21:39:34 [http-nio-8080-exec-8] INFO  com.lightdoc.handler.CollaborativeEditorHandler - ç”¨æˆ· 4 æˆåŠŸåŠ å…¥æ–‡æ¡£ 3 çš„ååŒç¼–è¾‘
+^C

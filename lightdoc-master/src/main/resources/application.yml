@@ -1,0 +1,68 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+spring:
+  application:
+    name: lightdoc
+  
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/light_doc?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Shanghai
+    username: root
+    password: 123456
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: ''
+  
+  
+  
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+    serialization:
+      write-dates-as-timestamps: false
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: deleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  mapper-locations: classpath:/mapper/**/*.xml
+  type-aliases-package: com.lightdoc.entity
+
+jwt:
+  secret: bGlnaHRkb2NfanB0X3NlY3JldF9rZXlfbGlnaHRkb2NfanB0X3NlY3JldF9rZXk=
+  expiration: 86400000
+  token-prefix: Bearer
+  token-header: Authorization
+
+minio:
+  endpoint: http://localhost:9000
+  access-key: admin
+  secret-key: 12345678
+  bucket-name: light-doc-bucket
+
+oss:
+  endpoint: oss-cn-beijing.aliyuncs.com
+  access-key-id: your-access-key-id
+  access-key-secret: your-access-key-secret
+  bucket-name: lightdoc-bucket
+  domain: https://lightdoc-bucket.oss-cn-hangzhou.aliyuncs.com
+  storage-prefix: lightdoc/attachments/
+
+logging:
+  level:
+    com.lightdoc: debug
+    org.springframework.web: info
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{50} - %msg%n"
