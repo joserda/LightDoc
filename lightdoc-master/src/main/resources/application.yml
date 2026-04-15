@@ -56,8 +56,8 @@ minio:
 
 oss:
   endpoint: oss-cn-beijing.aliyuncs.com
-  access-key-id: your-access-key-id
-  access-key-secret: your-access-key-secret
+  access-key-id: ${OSS_ACCESS_KEY_ID:your-access-key-id}
+  access-key-secret: ${OSS_ACCESS_KEY_SECRET:your-access-key-secret}
   bucket-name: lightdoc-bucket
   domain: https://lightdoc-bucket.oss-cn-hangzhou.aliyuncs.com
   storage-prefix: lightdoc/attachments/
