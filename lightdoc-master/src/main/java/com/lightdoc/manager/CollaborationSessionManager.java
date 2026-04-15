@@ -78,6 +78,9 @@ public class CollaborationSessionManager {
 
     @Autowired
     private YjsDocumentManager yjsDocumentManager;
+
+    @Autowired
+    private CollaborationRedisPublisher redisPublisher;
     
     // ==================== 会话存储 ====================
     
@@ -269,9 +272,8 @@ public class CollaborationSessionManager {
                 sendMessageToSession(session, result.getResponse());
             }
             
-            // 广播消息
             if (result.shouldBroadcast()) {
-                broadcastToDocument(sessionInfo.getDocumentId(), result.getResponse(), session);
+                redisPublisher.publishText(sessionInfo.getDocumentId(), result.getResponse(), sessionInfo.getSessionId());
             }
             
         } catch (Exception e) {
@@ -348,9 +350,9 @@ public class CollaborationSessionManager {
                  }
             }
             
-            // 3. 广播消息
-            // 无论是 SyncStep2, Update 还是 Awareness，都直接广播给其他客户端
-            broadcastBinaryToDocument(documentId, message, session);
+            if (messageType == MESSAGE_SYNC || messageType == MESSAGE_AWARENESS) {
+                redisPublisher.publishBinary(documentId, message, sessionInfo.getSessionId());
+            }
             
             // 如果是更新消息，异步保存到 MinIO
             if (messageType == MESSAGE_SYNC && message.length > 1 && (message[1] == SYNC_STEP_2 || message[1] == SYNC_UPDATE)) {
@@ -479,17 +481,15 @@ public class CollaborationSessionManager {
      * @param message 消息内容
      */
     public void broadcastToDocument(Long documentId, CollaborationMessageDTO message) {
-        broadcastToDocument(documentId, message, null);
+        broadcastToDocument(documentId, message, (String) null);
     }
-    
-    /**
-     * 广播消息到文档的所有会话（排除指定会话）
-     * 
-     * @param documentId 文档ID
-     * @param message 消息内容
-     * @param excludeSession 排除的会话
-     */
+
     public void broadcastToDocument(Long documentId, CollaborationMessageDTO message, Session excludeSession) {
+        String excludeSessionId = excludeSession != null ? getSessionId(excludeSession) : null;
+        broadcastToDocument(documentId, message, excludeSessionId);
+    }
+
+    public void broadcastToDocument(Long documentId, CollaborationMessageDTO message, String excludeSessionId) {
         try {
             ConcurrentHashMap<String, Session> sessions = documentSessions.get(documentId);
             if (sessions == null || sessions.isEmpty()) {
@@ -504,8 +504,7 @@ public class CollaborationSessionManager {
                 Session session = entry.getValue();
                 String sessionId = entry.getKey();
                 
-                // 排除指定会话
-                if (session.equals(excludeSession)) {
+                if (excludeSessionId != null && excludeSessionId.equals(sessionId)) {
                     continue;
                 }
                 
@@ -545,6 +544,11 @@ public class CollaborationSessionManager {
      * @param excludeSession 排除的会话
      */
     public void broadcastBinaryToDocument(Long documentId, byte[] message, Session excludeSession) {
+        String excludeSessionId = excludeSession != null ? getSessionId(excludeSession) : null;
+        broadcastBinaryToDocument(documentId, message, excludeSessionId);
+    }
+
+    public void broadcastBinaryToDocument(Long documentId, byte[] message, String excludeSessionId) {
         try {
             ConcurrentHashMap<String, Session> sessions = documentSessions.get(documentId);
             if (sessions == null || sessions.isEmpty()) {
@@ -558,8 +562,7 @@ public class CollaborationSessionManager {
                 Session session = entry.getValue();
                 String sessionId = entry.getKey();
                 
-                // 排除指定会话
-                if (session.equals(excludeSession)) {
+                if (excludeSessionId != null && excludeSessionId.equals(sessionId)) {
                     continue;
                 }
                 

@@ -228,17 +228,17 @@ public class DocumentInviteServiceImpl implements DocumentInviteService {
     @Override
     public List<MemberDTO> getDocumentMembers(Long documentId) {
         List<DocumentPermission> permissions = documentPermissionMapper.selectList(
-            new LambdaQueryWrapper<DocumentPermission>()
-                .eq(DocumentPermission::getDocumentId, documentId)
+                new LambdaQueryWrapper<DocumentPermission>()
+                        .eq(DocumentPermission::getDocumentId, documentId)
         );
-        
-        return permissions.stream().map(permission -> {
+
+        List<MemberDTO> members = permissions.stream().map(permission -> {
             MemberDTO dto = new MemberDTO();
             dto.setUserId(permission.getUserId());
             dto.setPermissionLevel(permission.getPermissionLevel());
             dto.setInviteTime(permission.getInviteTime());
             dto.setJoinedAt(permission.getCreatedAt());
-            
+
             User user = userMapper.selectById(permission.getUserId());
             if (user != null) {
                 dto.setUsername(user.getUsername());
@@ -246,17 +246,42 @@ public class DocumentInviteServiceImpl implements DocumentInviteService {
                 dto.setAvatar(user.getAvatar());
                 dto.setEmail(user.getEmail());
             }
-            
-            // 获取邀请者昵称
+
             if (permission.getInviterId() != null) {
                 User inviter = userMapper.selectById(permission.getInviterId());
                 if (inviter != null) {
                     dto.setInviterNickname(inviter.getNickname());
                 }
             }
-            
+
             return dto;
         }).collect(Collectors.toList());
+
+        Document document = documentMapper.selectById(documentId);
+        if (document != null && document.getOwnerId() != null) {
+            Long ownerId = document.getOwnerId();
+            boolean ownerExists = permissions.stream()
+                    .anyMatch(p -> ownerId.equals(p.getUserId()));
+            if (!ownerExists) {
+                MemberDTO ownerDto = new MemberDTO();
+                ownerDto.setUserId(ownerId);
+                ownerDto.setPermissionLevel(3);
+                ownerDto.setInviteTime(document.getCreatedAt());
+                ownerDto.setJoinedAt(document.getCreatedAt());
+
+                User owner = userMapper.selectById(ownerId);
+                if (owner != null) {
+                    ownerDto.setUsername(owner.getUsername());
+                    ownerDto.setNickname(owner.getNickname());
+                    ownerDto.setAvatar(owner.getAvatar());
+                    ownerDto.setEmail(owner.getEmail());
+                }
+
+                members.add(ownerDto);
+            }
+        }
+
+        return members;
     }
     
     @Override

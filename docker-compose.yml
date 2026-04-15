@@ -1,0 +1,52 @@
+version: '3.8'
+
+services:
+  # Redis 服务 - 用于缓存和会话管理
+  redis:
+    image: redis:7.0-alpine
+    container_name: lightdoc-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    networks:
+      - lightdoc-network
+
+  # MinIO 服务 - 用于本地文件存储
+  minio:
+    image: docker.1ms.run/minio/minio:latest
+    container_name: lightdoc-minio
+    restart: unless-stopped
+    ports:
+      - "9000:9000"   # API端口
+      - "9001:9001"   # 控制台端口
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: 12345678
+    volumes:
+      - minio-data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - lightdoc-network
+
+volumes:
+  redis-data:
+    driver: local
+  minio-data:
+    driver: local
+
+networks:
+  lightdoc-network:
+    driver: bridge

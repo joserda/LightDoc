@@ -52,13 +52,11 @@ public interface DocumentService {
      */
     DocumentDTO updateDocument(Long documentId, DocumentDTO documentDTO, Long userId);
     
-    /**
-     * 删除文档
-     * 
-     * @param documentId 文档ID
-     * @param userId 用户ID
-     */
     void deleteDocument(Long documentId, Long userId);
+
+    void restoreDocument(Long documentId, Long userId);
+
+    void deleteDocumentPermanently(Long documentId, Long userId);
     
     boolean hasPermission(Long documentId, Long userId, int requiredPermission);
 

@@ -1,0 +1,147 @@
+# ==================== Java/Maven ====================
+# Maven 编译输出
+target/
+!.mvn/wrapper/maven-wrapper.jar
+
+# Java 类文件
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+
+# Maven 包装器
+.mvn/
+
+# ==================== Node.js/Vue ====================
+# 依赖目录
+node_modules/
+.pnp
+.pnp.js
+
+# 构建输出
+dist/
+dist-ssr/
+*.local
+
+# Vite 缓存
+.vite/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# ==================== IDE 配置 ====================
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# VS Code
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# Eclipse
+.project
+.classpath
+.settings/
+.metadata/
+bin/
+tmp/
+
+# ==================== 操作系统 ====================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# Linux
+*~
+
+# ==================== 日志文件 ====================
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# ==================== 环境变量和敏感配置 ====================
+# 本地环境变量
+.env.local
+.env.*.local
+
+# 敏感配置文件（如果有本地配置）
+application-local.yml
+application-local.properties
+
+# ==================== 数据库 ====================
+# 数据库文件
+*.db
+*.sqlite
+*.sqlite3
+
+# ==================== 临时和备份文件 ====================
+# 临时文件
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.backup
+*.old
+
+# 压缩文件
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# ==================== 其他 ====================
+# 测试覆盖率
+coverage/
+*.lcov
+.nyc_output/
+
+# 编辑器备份
+*.sublime-project
+*.sublime-workspace
+
+# PWA
+sw.js
+workbox-*.js
+
+# TypeScript 缓存
+*.tsbuildinfo
+
+# Yarn
+.yarn-integrity
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# PNPM
+.pnpm-debug.log
+.pnpm-store/
+
+# 锁文件（根据团队约定决定是否忽略）
+# pnpm-lock.yaml
+# yarn.lock
+# package-lock.json

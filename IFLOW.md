@@ -18,6 +18,8 @@
 - **通知系统**: 完整的通知管理，支持文档邀请、评论提及、系统通知等
 - **文档邀请**: 支持邀请用户协作编辑文档，成员权限管理
 - **Redis缓存**: Redis集成，提升系统性能
+- **集群协同**: 基于Redis发布/订阅的跨服务器协同编辑同步
+- **文档锁定**: 防止并发冲突的文档锁定机制
 
 ## 技术栈
 
@@ -48,7 +50,7 @@
 - **框架**: SpringBoot 3.2.3 + MyBatis Plus 3.5.5
 - **语言**: Java 21
 - **数据库**: MySQL 8.0.33 + mysql-connector-j 8.0.33
-- **缓存**: Redis (Spring Data Redis)
+- **缓存**: Redis (Spring Data Redis + Redis发布/订阅)
 - **存储**: MinIO 8.5.7 + 阿里云OSS 3.17.4
 - **安全**: JWT 0.12.3 + Spring Security
 - **文档解析**:
@@ -67,6 +69,7 @@
 - **数据验证**: Spring Boot Validation
 - **AOP支持**: Spring Boot AOP
 - **MyBatis**: mybatis-spring 3.0.3
+- **集群支持**: Redis发布/订阅实现跨服务器协同编辑同步
 
 ### 通信协议
 - **实时通信**: WebSocket + Yjs CRDT算法
@@ -110,6 +113,7 @@ light-doc-new/
 │   │   │   └── NotificationTestController.java # 通知测试控制器
 │   │   ├── dto/                  # 数据传输对象
 │   │   │   ├── CollaborationMessageDTO.java  # 协同消息DTO
+│   │   │   ├── CollaborationBroadcastMessageDTO.java # 协同广播消息DTO
 │   │   │   ├── CreateNotificationDTO.java    # 创建通知DTO
 │   │   │   ├── DocumentDTO.java   # 文档DTO
 │   │   │   ├── DocumentQueryDTO.java  # 文档查询DTO
@@ -129,6 +133,7 @@ light-doc-new/
 │   │   │   ├── DocumentPermission.java  # 文档权限实体
 │   │   │   ├── DocumentResource.java  # 文档资源实体
 │   │   │   ├── DocumentVersion.java  # 文档版本实体
+│   │   │   ├── DocumentSettings.java # 文档设置实体
 │   │   │   ├── KnowledgeBase.java  # 知识库实体
 │   │   │   ├── KnowledgeBasePermission.java  # 知识库权限实体
 │   │   │   ├── Notification.java  # 通知实体
@@ -139,6 +144,8 @@ light-doc-new/
 │   │   │   ├── CollaborativeEditorHandler.java  # 协同编辑处理器
 │   │   │   └── CollaborationMessageHandler.java  # 协同消息处理器
 │   │   ├── manager/              # 管理器
+│   │   │   ├── CollaborationRedisPublisher.java  # 协同Redis发布者
+│   │   │   ├── CollaborationRedisSubscriber.java # 协同Redis订阅者
 │   │   │   └── CollaborationSessionManager.java  # 协作会话管理器
 │   │   ├── mapper/               # 数据访问层（MyBatis Mapper）
 │   │   │   └── NotificationMapper.java  # 通知Mapper
@@ -148,6 +155,10 @@ light-doc-new/
 │   │   │   ├── DocumentService.java  # 文档服务
 │   │   │   ├── CommentService.java  # 评论服务
 │   │   │   ├── CollaborationService.java  # 协同服务
+│   │   │   ├── DocumentInviteService.java # 文档邀请服务
+│   │   │   ├── DocumentSettingsService.java # 文档设置服务
+│   │   │   ├── DocumentVersionService.java # 文档版本服务
+│   │   │   ├── KnowledgeBaseService.java # 知识库服务
 │   │   │   ├── NotificationService.java  # 通知服务
 │   │   │   └── impl/             # 业务逻辑实现
 │   │   └── utils/                # 工具类
@@ -155,6 +166,7 @@ light-doc-new/
 │   │       ├── MarkdownUtil.java # Markdown工具
 │   │       ├── MinioUtil.java    # MinIO工具
 │   │       ├── OssUtil.java      # 阿里云OSS工具
+│   │       ├── NotificationUtil.java # 通知工具
 │   │       └── YjsDocumentManager.java  # Yjs文档管理器
 │   └── src/main/resources/
 │       ├── application.yml       # 主配置文件
@@ -180,6 +192,7 @@ light-doc-new/
         ├── App.vue               # 根组件
         ├── api/                  # API接口
         │   ├── auth.ts          # 认证API
+        │   ├── comments.ts      # 评论API
         │   ├── documentInvites.ts  # 文档邀请API
         │   ├── documents.ts     # 文档API
         │   ├── knowledgeBase.ts # 知识库API
@@ -190,8 +203,9 @@ light-doc-new/
         ├── router/               # 路由配置
         │   └── index.ts         # 路由定义
         ├── types/                # TypeScript类型定义
+        │   ├── collaboration.ts # 协同编辑类型
         │   ├── index.ts         # 通用类型
-        │   └── collaboration.ts # 协同编辑类型
+        │   └── y-websocket.d.ts # Y-websocket类型定义
         ├── utils/                # 工具函数
         │   ├── request.ts       # HTTP请求封装
         │   ├── storage.ts       # 本地存储封装
@@ -315,6 +329,7 @@ docker run -d -p 6379:6379 redis:latest
 - 主机地址: `localhost`
 - 端口: `6379`
 - 密码: 无 (可在 application.yml 中配置)
+- 数据库: 1 (可在 application.yml 中配置)
 
 **注意事项**:
 - 确保Redis服务在应用启动前已运行
@@ -410,6 +425,8 @@ docker run -d \
 - 前端WebSocket提供者: `CustomWebsocketProvider`
 - 文档锁定机制防止并发冲突
 - 光标位置追踪和在线用户显示
+- Redis发布/订阅实现跨服务器协同编辑同步
+- 协同会话管理器: `CollaborationSessionManager`
 
 ### 3. 版本控制模块
 - 每次保存生成新快照
@@ -444,6 +461,7 @@ docker run -d \
 - 未读通知数量统计
 - 通知与关联文档/知识库的跳转
 - 通知持久化存储
+- 通知工具类: `NotificationUtil`
 
 ### 8. 文档邀请模块
 - 文档成员邀请功能
@@ -457,6 +475,12 @@ docker run -d \
 - 支持键值对存储
 - 使用GenericJackson2JsonRedisSerializer进行序列化
 - 配置类: `RedisConfig`
+
+### 10. 集群协同模块
+- Redis发布/订阅实现跨服务器协同编辑同步
+- 协同Redis发布者: `CollaborationRedisPublisher`
+- 协同Redis订阅者: `CollaborationRedisSubscriber`
+- 支持多服务器部署的协同编辑功能
 
 ## 配置文件说明
 
@@ -523,7 +547,7 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/light_doc?useUnicode=true&characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://localhost:3306/light_doc?useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=Asia/Shanghai
     username: root
     password: 123456
 ```
@@ -536,6 +560,7 @@ spring:
       host: localhost
       port: 6379
       password: ''
+      database: 1
 ```
 
 **MinIO配置**:
@@ -565,6 +590,13 @@ jwt:
   expiration: 86400000  # 24小时（毫秒）
   token-prefix: Bearer
   token-header: Authorization
+```
+
+**协同编辑配置**:
+```yaml
+collaboration:
+  redis:
+    channel-shards: 8
 ```
 
 **MyBatis Plus配置**:
@@ -657,6 +689,7 @@ logging:
 **notifications - 通知表**
 - 通知基本信息（类型、标题、内容）
 - 接收用户和已读状态
+- 发送用户ID（sender_id）
 - 关联类型和关联ID（文档、知识库、评论等）
 - 创建和更新时间
 - 索引：user_id, is_read, created_at, type, user_read
@@ -764,6 +797,7 @@ logging:
 - [x] 通知批量操作(批量标记已读、批量删除)
 - [x] 通知类型筛选和排序
 - [x] 文档邀请接受/拒绝功能
+- [x] 评论功能
 
 ### 后端已实现
 - [x] Spring Boot 3.2.3项目结构
@@ -792,6 +826,10 @@ logging:
 - [x] 文档邀请控制器(DocumentInviteController.java)
 - [x] 通知DTO类(NotificationDTO, CreateNotificationDTO)
 - [x] 文档邀请DTO类(InviteDTO, InviteDetailDTO, MemberDTO)
+- [x] Redis发布/订阅协同编辑同步(CollaborationRedisPublisher/Subscriber)
+- [x] 通知工具类(NotificationUtil)
+- [x] 协同编辑会话管理增强功能
+- [x] 文档设置模块
 
 ## 待办事项
 
@@ -993,6 +1031,7 @@ Tiptap编辑器通过扩展系统提供丰富的功能支持。
 - 主机地址: `localhost`
 - 端口: `6379`
 - 密码: 可配置
+- 数据库: `1`
 
 **序列化配置**:
 - Key序列化: StringRedisSerializer
@@ -1002,12 +1041,27 @@ Tiptap编辑器通过扩展系统提供丰富的功能支持。
 
 **配置类**: `RedisConfig.java`
 
+### 集群协同编辑功能
+
+系统支持跨服务器协同编辑，使用Redis发布/订阅实现实时同步。
+
+**核心组件**:
+- `CollaborationRedisPublisher`: Redis消息发布者
+- `CollaborationRedisSubscriber`: Redis消息订阅者
+- 消息分片策略：支持8个Redis频道分片
+- 二进制消息支持：Yjs协议的二进制同步
+
+**配置**:
+- 频道分片数：默认8个分片
+- 跨服务器同步：基于Redis Pub/Sub
+- 会话管理：支持跨服务器会话状态同步
+
 ## 项目状态
 
 ### 当前版本
 - **前端版本**: 0.0.0
 - **后端版本**: 1.0.0
-- **最后更新**: 2026-01-11
+- **最后更新**: 2026-02-28
 
 ### 开发状态
 - ✅ 项目基础架构已完成
@@ -1017,6 +1071,7 @@ Tiptap编辑器通过扩展系统提供丰富的功能支持。
 - ✅ 通知系统已实现
 - ✅ 文档邀请功能已实现
 - ✅ Redis缓存已集成
+- ✅ 跨服务器协同编辑已实现
 - 🚧 部分功能待优化和完善
 - 📝 单元测试和集成测试待补充
 
@@ -1115,5 +1170,5 @@ feat(cache): 集成Redis缓存
 
 ---
 
-**最后更新**: 2026-01-11
+**最后更新**: 2026-02-28
 **维护者**: LightDoc Team

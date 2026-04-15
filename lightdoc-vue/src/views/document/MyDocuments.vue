@@ -1,12 +1,14 @@
 <template>
   <div class="my-documents-page">
-    <!-- 页面标题和操作栏 -->
     <div class="page-header">
-      <h2>我的文档</h2>
+      <h2>{{ pageTitle }}</h2>
       <div class="page-actions">
-        <a-button type="default" @click="showCreateModal = true">
+        <a-button v-if="showCreateButton" type="default" @click="showCreateModal = true">
           <template #icon><PlusOutlined /></template>
           创建文档
+        </a-button>
+        <a-button v-if="showImportButton" type="default" @click="triggerImportJson">
+          导入 JSON
         </a-button>
       </div>
     </div>
@@ -33,31 +35,52 @@
               </template>
             </a-list-item-meta>
             <template #actions>
-              <a-tooltip title="编辑">
-                <a-button type="text" @click="openDocument(item)">
-                  <EditOutlined />
-                </a-button>
-              </a-tooltip>
-              <a-tooltip title="下载">
-                <a-button type="text" @click="downloadDocument(item)">
-                  <DownloadOutlined />
-                </a-button>
-              </a-tooltip>
-              <a-tooltip title="更多">
-                <a-dropdown>
-                  <a-button type="text">
-                    <EllipsisOutlined />
+              <template v-if="isTrashView">
+                <a-tooltip title="恢复">
+                  <a-button type="text" @click="restoreDocument(item)">
+                    恢复
                   </a-button>
-                  <template #overlay>
-                    <a-menu>
-                      <a-menu-item @click="copyLink(item)">复制链接</a-menu-item>
-                      <a-menu-item @click="shareDocument(item)">分享</a-menu-item>
-                      <a-menu-divider />
-                      <a-menu-item danger @click="deleteDocument(item)">删除</a-menu-item>
-                    </a-menu>
-                  </template>
-                </a-dropdown>
-              </a-tooltip>
+                </a-tooltip>
+                <a-tooltip title="彻底删除">
+                  <a-button type="text" danger @click="deleteDocumentPermanently(item)">
+                    彻底删除
+                  </a-button>
+                </a-tooltip>
+              </template>
+              <template v-else-if="isSharedView">
+                <a-tooltip title="打开">
+                  <a-button type="text" @click="openDocument(item)">
+                    <EditOutlined />
+                  </a-button>
+                </a-tooltip>
+              </template>
+              <template v-else>
+                <a-tooltip title="编辑文档信息">
+                  <a-button type="text" @click="openEditModal(item)">
+                    <EditOutlined />
+                  </a-button>
+                </a-tooltip>
+                <a-tooltip title="下载JSON">
+                  <a-button type="text" @click="downloadDocument(item)">
+                    <DownloadOutlined />
+                  </a-button>
+                </a-tooltip>
+                <a-tooltip title="更多">
+                  <a-dropdown>
+                    <a-button type="text">
+                      <EllipsisOutlined />
+                    </a-button>
+                    <template #overlay>
+                      <a-menu>
+                        <a-menu-item @click="copyLink(item)">复制链接</a-menu-item>
+                        <a-menu-item @click="shareDocument(item)">分享</a-menu-item>
+                        <a-menu-divider />
+                        <a-menu-item danger @click="deleteDocument(item)">删除</a-menu-item>
+                      </a-menu>
+                    </template>
+                  </a-dropdown>
+                </a-tooltip>
+              </template>
             </template>
             <div class="document-meta">
               <span>{{ formatDate(item.createdAt) }}</span>
@@ -69,7 +92,6 @@
       </a-list>
     </div>
 
-    <!-- 创建文档模态框 -->
     <a-modal
       v-model:open="showCreateModal"
       title="创建新文档"
@@ -78,22 +100,22 @@
     >
       <a-form :model="newDocument" layout="vertical">
         <a-form-item label="文档标题">
-          <a-input 
-            v-model:value="newDocument.title" 
-            placeholder="请输入文档标题" 
+          <a-input
+            v-model:value="newDocument.title"
+            placeholder="请输入文档标题"
             :maxlength="100"
             show-count
           />
         </a-form-item>
         <a-form-item label="所属知识库">
-          <a-select 
-            v-model:value="newDocument.knowledgeBaseId" 
+          <a-select
+            v-model:value="newDocument.knowledgeBaseId"
             placeholder="选择知识库（可选）"
             allowClear
           >
-            <a-select-option 
-              v-for="kb in knowledgeBases" 
-              :key="kb.id" 
+            <a-select-option
+              v-for="kb in knowledgeBases"
+              :key="kb.id"
               :value="kb.id"
             >
               {{ kb.name }}
@@ -101,19 +123,59 @@
           </a-select>
         </a-form-item>
         <a-form-item label="标签">
-          <a-input 
-            v-model:value="newDocument.tags" 
-            placeholder="输入标签，用逗号分隔（可选）" 
+          <a-input
+            v-model:value="newDocument.tags"
+            placeholder="输入标签，用逗号分隔（可选）"
           />
         </a-form-item>
       </a-form>
     </a-modal>
+    <a-modal
+      v-model:open="showEditModal"
+      title="编辑文档信息"
+      :confirm-loading="updating"
+      @ok="handleUpdateDocument"
+      @cancel="handleEditCancel"
+    >
+      <a-form :model="editDocument" layout="vertical">
+        <a-form-item label="文档标题">
+          <a-input
+            v-model:value="editDocument.title"
+            placeholder="请输入文档标题"
+            :maxlength="100"
+            show-count
+          />
+        </a-form-item>
+        <a-form-item label="标签">
+          <a-input
+            v-model:value="editDocument.tags"
+            placeholder="输入标签，用逗号分隔（可选）"
+          />
+        </a-form-item>
+        <a-form-item label="摘要">
+          <a-textarea
+            v-model:value="editDocument.summary"
+            placeholder="请输入文档摘要（可选）"
+            :rows="4"
+            :maxlength="500"
+            show-count
+          />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+    <input
+      ref="importInputRef"
+      type="file"
+      accept=".json,application/json"
+      style="display: none"
+      @change="handleImportFileChange"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, reactive, onMounted, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { message } from 'ant-design-vue'
 import { documentApi, type DocumentDTO } from '@/api/documents'
 import { knowledgeBaseApi, type KnowledgeBase } from '@/api/knowledgeBase'
@@ -126,11 +188,12 @@ import {
 } from '@ant-design/icons-vue'
 
 const router = useRouter()
+const route = useRoute()
 
-// 响应式数据
 const documents = ref<DocumentDTO[]>([])
 const loading = ref(false)
 const creating = ref(false)
+const updating = ref(false)
 
 // 分页配置
 const pagination = reactive({
@@ -158,7 +221,6 @@ const paginationConfig = reactive({
   }
 })
 
-// 创建文档相关
 const showCreateModal = ref(false)
 const newDocument = reactive({
   title: '',
@@ -166,23 +228,85 @@ const newDocument = reactive({
   tags: ''
 })
 
-// 知识库列表
 const knowledgeBases = ref<KnowledgeBase[]>([])
 
-// 初始化
+const showEditModal = ref(false)
+const editDocument = reactive({
+  id: undefined as number | undefined,
+  title: '',
+  tags: '',
+  summary: ''
+})
+
+const pageTitle = computed(() => {
+  const name = route.name as string | undefined
+  if (name === 'SharedDocuments') {
+    return '共享给我的'
+  }
+  if (name === 'Trash') {
+    return '回收站'
+  }
+  if (name === 'AllDocuments') {
+    return '全部文档'
+  }
+  if (name === 'Favorites') {
+    return '收藏'
+  }
+  return '我的文档'
+})
+
+const showCreateButton = computed(() => {
+  const name = route.name as string | undefined
+  return name === 'MyDocuments' || name === 'AllDocuments'
+})
+
+const showImportButton = computed(() => {
+  const name = route.name as string | undefined
+  return name === 'MyDocuments' || name === 'AllDocuments'
+})
+
+const isTrashView = computed(() => {
+  const name = route.name as string | undefined
+  return name === 'Trash'
+})
+
+const isSharedView = computed(() => {
+  const name = route.name as string | undefined
+  return name === 'SharedDocuments'
+})
+
+const importInputRef = ref<HTMLInputElement | null>(null)
+
 onMounted(() => {
   loadKnowledgeBases()
   loadDocuments()
 })
 
-// 加载文档列表
+watch(
+  () => route.name,
+  () => {
+    pagination.current = 1
+    loadDocuments()
+  }
+)
+
 const loadDocuments = async () => {
   loading.value = true
   try {
+    let viewType: string | undefined
+    const name = route.name as string | undefined
+    if (name === 'MyDocuments') {
+      viewType = 'MINE'
+    } else if (name === 'SharedDocuments') {
+      viewType = 'SHARED_WITH_ME'
+    } else if (name === 'Trash') {
+      viewType = 'TRASH'
+    }
+
     const params = {
       page: pagination.current,
       size: pagination.pageSize,
-      ownerId: undefined as number | undefined // 获取当前用户的文档
+      viewType
     }
     const response = await documentApi.queryDocuments(params)
     if (response.code === 200 && response.data) {
@@ -198,6 +322,51 @@ const loadDocuments = async () => {
   } finally {
     loading.value = false
   }
+}
+
+const triggerImportJson = () => {
+  if (importInputRef.value) {
+    importInputRef.value.value = ''
+    importInputRef.value.click()
+  }
+}
+
+const handleImportFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = async () => {
+    try {
+      const text = String(reader.result || '')
+      const json = JSON.parse(text)
+      const baseTitle = file.name.replace(/\.json$/i, '')
+      const title = baseTitle || '导入文档'
+      const params: Partial<DocumentDTO> = {
+        title,
+        proseMirrorJson: JSON.stringify(json)
+      }
+      const response = await documentApi.createDocument(params)
+      if (response.code === 200 && response.data) {
+        message.success('导入成功')
+        loadDocuments()
+        if (response.data.id) {
+          router.push(`/document/${response.data.id}/edit`)
+        }
+      } else {
+        message.error(response.message || '导入失败')
+      }
+    } catch (error) {
+      console.error('导入文档失败:', error)
+      message.error('JSON 文件格式不正确')
+    } finally {
+      if (importInputRef.value) {
+        importInputRef.value.value = ''
+      }
+    }
+  }
+  reader.readAsText(file)
 }
 
 // 加载知识库列表
@@ -268,16 +437,68 @@ const openDocument = (document: DocumentDTO) => {
   }
 }
 
-// 下载文档
-const downloadDocument = async (document: DocumentDTO) => {
-  if (document.id) {
-    try {
-      await documentApi.downloadDocument(document.id)
-      message.success('开始下载')
-    } catch (error) {
-      console.error('下载失败:', error)
-      message.error('下载失败')
+const openEditModal = (doc: DocumentDTO) => {
+  if (!doc.id) return
+
+  editDocument.id = doc.id
+  editDocument.title = doc.title || ''
+  editDocument.tags = doc.tags || ''
+  editDocument.summary = doc.summary || ''
+  showEditModal.value = true
+}
+
+const handleUpdateDocument = async () => {
+  if (!editDocument.id) return
+  if (!editDocument.title.trim()) {
+    message.error('请输入文档标题')
+    return
+  }
+
+  updating.value = true
+  try {
+    const params: Partial<DocumentDTO> = {
+      title: editDocument.title,
+      tags: editDocument.tags,
+      summary: editDocument.summary
     }
+    const response = await documentApi.updateDocument(editDocument.id, params)
+    if (response.code === 200) {
+      message.success('文档信息已更新')
+      showEditModal.value = false
+      loadDocuments()
+    } else {
+      message.error(response.message || '更新文档信息失败')
+    }
+  } catch (error) {
+    console.error('更新文档信息失败:', error)
+    message.error('更新文档信息失败')
+  } finally {
+    updating.value = false
+  }
+}
+
+const handleEditCancel = () => {
+  showEditModal.value = false
+}
+
+// 下载文档JSON
+const downloadDocument = async (doc: DocumentDTO) => {
+  if (!doc.id) return
+
+  try {
+    const blob = await documentApi.downloadDocumentJson(doc.id)
+    const url = window.URL.createObjectURL(blob as Blob)
+    const link = window.document.createElement('a')
+    link.href = url
+    link.download = `${doc.title || 'document'}.json`
+    window.document.body.appendChild(link)
+    link.click()
+    window.document.body.removeChild(link)
+    window.URL.revokeObjectURL(url)
+    message.success('开始下载')
+  } catch (error) {
+    console.error('下载失败:', error)
+    message.error('下载失败')
   }
 }
 
@@ -301,7 +522,32 @@ const shareDocument = (_document: DocumentDTO) => {
   // 这里可以打开分享模态框
 }
 
-// 删除文档
+const restoreDocument = async (document: DocumentDTO) => {
+  if (!document.id) return
+
+  try {
+    await documentApi.restoreDocument(document.id)
+    message.success('文档已恢复')
+    loadDocuments()
+  } catch (error) {
+    console.error('恢复文档失败:', error)
+    message.error('恢复文档失败')
+  }
+}
+
+const deleteDocumentPermanently = async (document: DocumentDTO) => {
+  if (!document.id) return
+
+  try {
+    await documentApi.deleteDocumentPermanently(document.id)
+    message.success('文档已彻底删除')
+    loadDocuments()
+  } catch (error) {
+    console.error('彻底删除文档失败:', error)
+    message.error('彻底删除文档失败')
+  }
+}
+
 const deleteDocument = async (document: DocumentDTO) => {
   if (!document.id) return
   

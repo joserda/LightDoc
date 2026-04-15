@@ -73,12 +73,29 @@ public class DocumentServiceImpl implements DocumentService {
         document.setViewCount(0);
         document.setCreatedAt(LocalDateTime.now());
         document.setLastEditTime(LocalDateTime.now());
-        
-        // 为新文档设置默认的ProseMirror JSON内容
-        String defaultContent = "{\"type\": \"doc\", \"content\": [{\"type\": \"paragraph\", \"content\": [{\"text\": \"yangkun is a joker.\", \"type\": \"text\"}]}]}";
-        document.setProseMirrorJson(defaultContent);
+
+        String proseMirrorJson = documentDTO.getProseMirrorJson();
+        if (StringUtils.hasText(proseMirrorJson)) {
+            document.setProseMirrorJson(proseMirrorJson);
+        } else {
+            String defaultContent = "{\"type\": \"doc\", \"content\": [{\"type\": \"paragraph\", \"content\": [{\"text\": \"yangkun is a joker.\", \"type\": \"text\"}]}]}";
+            document.setProseMirrorJson(defaultContent);
+        }
 
         documentMapper.insert(document);
+
+        try {
+            DocumentPermission ownerPermission = new DocumentPermission();
+            ownerPermission.setDocumentId(document.getId());
+            ownerPermission.setUserId(userId);
+            ownerPermission.setPermissionType("write");
+            ownerPermission.setPermissionLevel(3);
+            ownerPermission.setGrantedBy(userId);
+            ownerPermission.setGrantedAt(LocalDateTime.now());
+            documentPermissionMapper.insert(ownerPermission);
+        } catch (Exception e) {
+            log.error("创建文档所有者权限记录失败: documentId={}, userId={}, error={}", document.getId(), userId, e.getMessage(), e);
+        }
 
         log.info("文档创建成功，文档ID: {}", document.getId());
         return convertToDTO(document);
@@ -91,6 +108,10 @@ public class DocumentServiceImpl implements DocumentService {
         Document document = documentMapper.selectById(documentId);
         if (document == null) {
             throw new RuntimeException("文档不存在");
+        }
+
+        if (document.getStatus() != null && document.getStatus() == 2) {
+            throw new RuntimeException("文档已删除");
         }
 
         if (!hasPermission(documentId, userId, DocumentService.DocumentPermissionAction.VIEW)) {
@@ -114,17 +135,65 @@ public class DocumentServiceImpl implements DocumentService {
 
         Page<Document> page = new Page<>(queryDTO.getPage(), queryDTO.getSize());
 
-        LambdaQueryWrapper<Document> wrapper = new LambdaQueryWrapper<Document>()
-                .eq(queryDTO.getKnowledgeBaseId() != null, Document::getKnowledgeBaseId, queryDTO.getKnowledgeBaseId())
-                .eq(queryDTO.getOwnerId() != null, Document::getOwnerId, queryDTO.getOwnerId())
-                .eq(queryDTO.getStatus() != null, Document::getStatus, queryDTO.getStatus())
+        LambdaQueryWrapper<Document> wrapper = new LambdaQueryWrapper<>();
+
+        wrapper.eq(queryDTO.getKnowledgeBaseId() != null, Document::getKnowledgeBaseId, queryDTO.getKnowledgeBaseId())
                 .like(StringUtils.hasText(queryDTO.getTitle()), Document::getTitle, queryDTO.getTitle())
                 .eq(StringUtils.hasText(queryDTO.getOriginalDocumentType()), Document::getOriginalDocumentType, queryDTO.getOriginalDocumentType())
-                .eq(StringUtils.hasText(queryDTO.getTags()), Document::getTags, queryDTO.getTags())
-                .and(w -> w.eq(Document::getOwnerId, userId)
+                .eq(StringUtils.hasText(queryDTO.getTags()), Document::getTags, queryDTO.getTags());
+
+        String viewType = queryDTO.getViewType();
+
+        if (StringUtils.hasText(viewType) && userId != null) {
+            String upperViewType = viewType.toUpperCase();
+            if ("MINE".equals(upperViewType)) {
+                wrapper.eq(Document::getOwnerId, userId);
+                if (queryDTO.getStatus() != null) {
+                    wrapper.eq(Document::getStatus, queryDTO.getStatus());
+                } else {
+                    wrapper.ne(Document::getStatus, 2);
+                }
+            } else if ("TRASH".equals(upperViewType)) {
+                wrapper.eq(Document::getOwnerId, userId);
+                wrapper.eq(Document::getStatus, 2);
+            } else if ("SHARED_WITH_ME".equals(upperViewType)) {
+                wrapper.ne(Document::getOwnerId, userId);
+                if (queryDTO.getStatus() != null) {
+                    wrapper.eq(Document::getStatus, queryDTO.getStatus());
+                } else {
+                    wrapper.ne(Document::getStatus, 2);
+                }
+                wrapper.and(w -> w.exists("SELECT 1 FROM document_permissions p WHERE p.document_id = documents.id AND p.user_id = " + userId + " AND p.permission_level >= 1"));
+            } else {
+                if (queryDTO.getOwnerId() != null) {
+                    wrapper.eq(Document::getOwnerId, queryDTO.getOwnerId());
+                }
+                if (queryDTO.getStatus() != null) {
+                    wrapper.eq(Document::getStatus, queryDTO.getStatus());
+                } else {
+                    wrapper.ne(Document::getStatus, 2);
+                }
+                wrapper.and(w -> w.eq(Document::getOwnerId, userId)
                         .or()
                         .eq(Document::getIsPublic, true)
                         .or(w1 -> w1.exists("SELECT 1 FROM document_permissions p WHERE p.document_id = documents.id AND p.user_id = " + userId + " AND p.permission_level >= 1")));
+            }
+        } else {
+            if (queryDTO.getOwnerId() != null) {
+                wrapper.eq(Document::getOwnerId, queryDTO.getOwnerId());
+            }
+            if (queryDTO.getStatus() != null) {
+                wrapper.eq(Document::getStatus, queryDTO.getStatus());
+            } else {
+                wrapper.ne(Document::getStatus, 2);
+            }
+            if (userId != null) {
+                wrapper.and(w -> w.eq(Document::getOwnerId, userId)
+                        .or()
+                        .eq(Document::getIsPublic, true)
+                        .or(w1 -> w1.exists("SELECT 1 FROM document_permissions p WHERE p.document_id = documents.id AND p.user_id = " + userId + " AND p.permission_level >= 1")));
+            }
+        }
 
         IPage<Document> documentPage = documentMapper.selectPage(page, wrapper);
 
@@ -201,24 +270,73 @@ public class DocumentServiceImpl implements DocumentService {
             throw new RuntimeException("没有权限删除该文档");
         }
 
-        // 删除文档权限记录
         documentPermissionMapper.delete(
             new LambdaQueryWrapper<DocumentPermission>()
                 .eq(DocumentPermission::getDocumentId, documentId));
 
-        // 删除MinIO中的文件
-            if (document.getOriginalFilePath() != null && !document.getOriginalFilePath().isEmpty()) {
-                try {
-                    minioUtil.deleteFile(document.getOriginalFilePath());
-                } catch (Exception e) {
-                    log.error("删除MinIO文件失败: {}", e.getMessage());
-                }
-            }
+        document.setStatus(2);
+        documentMapper.updateById(document);
 
-        // 删除文档
+        log.info("文档移动到回收站，文档ID: {}", documentId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void restoreDocument(Long documentId, Long userId) {
+        log.info("恢复文档，文档ID: {}, 用户ID: {}", documentId, userId);
+
+        Document document = documentMapper.selectById(documentId);
+        if (document == null) {
+            throw new RuntimeException("文档不存在");
+        }
+
+        if (!isDocumentOwner(documentId, userId)) {
+            throw new RuntimeException("没有权限恢复该文档");
+        }
+
+        if (document.getStatus() == null || document.getStatus() != 2) {
+            return;
+        }
+
+        document.setStatus(0);
+        documentMapper.updateById(document);
+
+        log.info("文档恢复成功，文档ID: {}", documentId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void deleteDocumentPermanently(Long documentId, Long userId) {
+        log.info("彻底删除文档，文档ID: {}, 用户ID: {}", documentId, userId);
+
+        Document document = documentMapper.selectById(documentId);
+        if (document == null) {
+            throw new RuntimeException("文档不存在");
+        }
+
+        if (!isDocumentOwner(documentId, userId)) {
+            throw new RuntimeException("没有权限删除该文档");
+        }
+
+        if (document.getStatus() == null || document.getStatus() != 2) {
+            throw new RuntimeException("只有回收站中的文档可以彻底删除");
+        }
+
+        documentPermissionMapper.delete(
+            new LambdaQueryWrapper<DocumentPermission>()
+                .eq(DocumentPermission::getDocumentId, documentId));
+
+        if (document.getOriginalFilePath() != null && !document.getOriginalFilePath().isEmpty()) {
+            try {
+                minioUtil.deleteFile(document.getOriginalFilePath());
+            } catch (Exception e) {
+                log.error("删除MinIO文件失败: {}", e.getMessage());
+            }
+        }
+
         documentMapper.deleteById(documentId);
 
-        log.info("文档删除成功，文档ID: {}", documentId);
+        log.info("文档已彻底删除，文档ID: {}", documentId);
     }
 
     @Override

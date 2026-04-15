@@ -5,11 +5,26 @@ import com.lightdoc.common.Result;
 import com.lightdoc.dto.DocumentDTO;
 import com.lightdoc.dto.DocumentQueryDTO;
 import com.lightdoc.service.DocumentService;
+import com.lightdoc.utils.MinioUtil;
 import com.lightdoc.utils.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * 文档管理控制器
@@ -24,8 +39,11 @@ public class DocumentController {
 
     private final DocumentService documentService;
 
-    public DocumentController(DocumentService documentService) {
+    private final MinioUtil minioUtil;
+
+    public DocumentController(DocumentService documentService, MinioUtil minioUtil) {
         this.documentService = documentService;
+        this.minioUtil = minioUtil;
     }
 
 
@@ -69,6 +87,84 @@ public class DocumentController {
         } catch (Exception e) {
             log.error("获取文档详情失败: {}", e.getMessage(), e);
             return Result.error("获取失败: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/{documentId}/download")
+    public ResponseEntity<InputStreamResource> downloadDocument(@PathVariable("documentId") Long documentId) {
+        try {
+            Long userId = SecurityUtils.getCurrentUserId();
+            if (userId == null) {
+                return ResponseEntity.status(401).build();
+            }
+
+            DocumentDTO documentDTO = documentService.getDocumentDetail(documentId, userId);
+            String originalFilePath = documentDTO.getOriginalFilePath();
+            if (originalFilePath == null || originalFilePath.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            InputStream inputStream = minioUtil.downloadFile(originalFilePath);
+            InputStreamResource resource = new InputStreamResource(inputStream);
+
+            String baseName = documentDTO.getTitle() != null ? documentDTO.getTitle() : "document";
+            String extension = "";
+            if (documentDTO.getOriginalDocumentType() != null && !documentDTO.getOriginalDocumentType().isEmpty()) {
+                extension = "." + documentDTO.getOriginalDocumentType();
+            }
+            String filename = baseName + extension;
+            String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFilename);
+
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(resource);
+        } catch (Exception e) {
+            log.error("下载文档失败: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+
+    /**
+     * 下载文档的 ProseMirror JSON 内容
+     *
+     * @param documentId 文档ID
+     * @return JSON 文件
+     */
+    @GetMapping("/{documentId}/json-download")
+    public ResponseEntity<byte[]> downloadDocumentJson(@PathVariable("documentId") Long documentId) {
+        try {
+            Long userId = SecurityUtils.getCurrentUserId();
+            if (userId == null) {
+                return ResponseEntity.status(401).build();
+            }
+
+            DocumentDTO documentDTO = documentService.getDocumentDetail(documentId, userId);
+            String proseMirrorJson = documentDTO.getProseMirrorJson();
+            if (proseMirrorJson == null) {
+                proseMirrorJson = "";
+            }
+
+            String baseName = documentDTO.getTitle() != null ? documentDTO.getTitle() : "document";
+            String filename = baseName + ".json";
+            String encodedFilename = URLEncoder.encode(filename, StandardCharsets.UTF_8).replace("+", "%20");
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename*=UTF-8''" + encodedFilename);
+
+            byte[] bytes = proseMirrorJson.getBytes(StandardCharsets.UTF_8);
+            return ResponseEntity
+                    .ok()
+                    .headers(headers)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(bytes);
+        } catch (Exception e) {
+            log.error("下载文档JSON失败: {}", e.getMessage(), e);
+            return ResponseEntity.internalServerError().build();
         }
     }
 
@@ -142,6 +238,40 @@ public class DocumentController {
         }
     }
 
+    @PostMapping("/{documentId}/restore")
+    public Result<Void> restoreDocument(@PathVariable("documentId") Long documentId) {
+        try {
+            Long userId = SecurityUtils.getCurrentUserId();
+            if (userId == null) {
+                return Result.error("用户未登录");
+            }
+
+            documentService.restoreDocument(documentId, userId);
+            return Result.success();
+
+        } catch (Exception e) {
+            log.error("恢复文档失败: {}", e.getMessage(), e);
+            return Result.error("恢复失败: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{documentId}/permanent")
+    public Result<Void> deleteDocumentPermanently(@PathVariable("documentId") Long documentId) {
+        try {
+            Long userId = SecurityUtils.getCurrentUserId();
+            if (userId == null) {
+                return Result.error("用户未登录");
+            }
+
+            documentService.deleteDocumentPermanently(documentId, userId);
+            return Result.success();
+
+        } catch (Exception e) {
+            log.error("彻底删除文档失败: {}", e.getMessage(), e);
+            return Result.error("彻底删除失败: " + e.getMessage());
+        }
+    }
+
     /**
      * 更新文档ProseMirror JSON内容
      *
@@ -185,6 +315,58 @@ public class DocumentController {
     @Data
     private static class UpdateJsonRequest {
         private String proseMirrorJson;
+    }
+
+    @PostMapping("/{documentId}/images")
+    public Result<Map<String, String>> uploadDocumentImage(
+            @PathVariable("documentId") Long documentId,
+            @RequestParam("file") MultipartFile file) {
+        try {
+            Long userId = SecurityUtils.getCurrentUserId();
+            if (userId == null) {
+                return Result.error("用户未登录");
+            }
+
+            if (!documentService.hasPermission(documentId, userId, DocumentService.DocumentPermissionAction.EDIT_CONTENT)) {
+                return Result.error("没有权限编辑此文档");
+            }
+
+            if (file == null || file.isEmpty()) {
+                return Result.error("上传文件不能为空");
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            String extension = "";
+            if (originalFilename != null) {
+                int dotIndex = originalFilename.lastIndexOf('.');
+                if (dotIndex >= 0) {
+                    extension = originalFilename.substring(dotIndex);
+                }
+            }
+
+            String timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss"));
+            String uuid = UUID.randomUUID().toString().substring(0, 8);
+            String objectName = String.format("documents/%d/images/%s_%s%s", documentId, timestamp, uuid, extension);
+
+            byte[] data = file.getBytes();
+            String contentType = file.getContentType();
+            if (contentType == null || contentType.isEmpty()) {
+                contentType = "application/octet-stream";
+            }
+
+            minioUtil.uploadFile(data, objectName, contentType);
+            String url = minioUtil.getFileUrl(objectName);
+
+            Map<String, String> responseData = new HashMap<>();
+            responseData.put("url", url);
+            responseData.put("objectName", objectName);
+            responseData.put("name", originalFilename != null ? originalFilename : "");
+
+            return Result.success(responseData);
+        } catch (Exception e) {
+            log.error("上传文档图片失败: documentId={}, error={}", documentId, e.getMessage(), e);
+            return Result.error("上传图片失败: " + e.getMessage());
+        }
     }
 
     /**

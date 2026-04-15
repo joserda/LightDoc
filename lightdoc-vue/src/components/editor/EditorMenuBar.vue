@@ -75,6 +75,92 @@
       </a-tooltip>
     </div>
 
+    <div class="menubar-group">
+      <a-divider type="vertical" />
+      <a-dropdown>
+        <a-button type="text" size="small">
+          <template #icon><FontColorsOutlined /></template>
+          <span class="color-indicator" :style="{ backgroundColor: currentTextColor || '#666' }"></span>
+        </a-button>
+        <template #overlay>
+          <a-menu @click="handleTextColorClick">
+            <a-menu-item key="__default__">默认</a-menu-item>
+            <a-menu-divider />
+            <a-menu-item v-for="c in presetTextColors" :key="c.value">
+              <span class="color-swatch" :style="{ backgroundColor: c.value }"></span>
+              <span>{{ c.label }}</span>
+            </a-menu-item>
+            <a-menu-divider />
+            <a-menu-item key="__custom__" class="custom-input-item">
+              <div class="custom-input-row" @click.stop>
+                <a-input
+                  v-model:value="customTextColorInput"
+                  size="small"
+                  placeholder="#ff0000"
+                  @click.stop
+                  @keydown.enter.stop.prevent="confirmCustomTextColor"
+                />
+                <a-button type="text" size="small" @click.stop="confirmCustomTextColor">
+                  <template #icon><CheckOutlined /></template>
+                </a-button>
+              </div>
+            </a-menu-item>
+          </a-menu>
+        </template>
+      </a-dropdown>
+
+      <a-dropdown>
+        <a-button type="text" size="small">
+          <template #icon><FontSizeOutlined /></template>
+          <span class="font-size-indicator">{{ currentFontSizeLabel }}</span>
+        </a-button>
+        <template #overlay>
+          <a-menu @click="handleFontSizeClick">
+            <a-menu-item key="__default__">默认</a-menu-item>
+            <a-menu-divider />
+            <a-menu-item v-for="s in presetFontSizes" :key="s.value">{{ s.label }}</a-menu-item>
+            <a-menu-divider />
+            <a-menu-item key="__custom__" class="custom-input-item">
+              <div class="custom-input-row" @click.stop>
+                <a-input
+                  v-model:value="customFontSizeInput"
+                  size="small"
+                  placeholder="16px"
+                  @click.stop
+                  @keydown.enter.stop.prevent="confirmCustomFontSize"
+                />
+                <a-button type="text" size="small" @click.stop="confirmCustomFontSize">
+                  <template #icon><CheckOutlined /></template>
+                </a-button>
+              </div>
+            </a-menu-item>
+          </a-menu>
+        </template>
+      </a-dropdown>
+
+      <a-tooltip title="上标">
+        <a-button
+          type="text"
+          size="small"
+          :class="{ 'is-active': isEditorActive('superscript') }"
+          @click="toggleSuperscript"
+        >
+          x²
+        </a-button>
+      </a-tooltip>
+
+      <a-tooltip title="下标">
+        <a-button
+          type="text"
+          size="small"
+          :class="{ 'is-active': isEditorActive('subscript') }"
+          @click="toggleSubscript"
+        >
+          x₂
+        </a-button>
+      </a-tooltip>
+    </div>
+
     <!-- 第二组：标题 -->
     <div class="menubar-group">
       <a-divider type="vertical" />
@@ -149,11 +235,35 @@
           type="text" 
           size="small" 
           :class="{ 'is-active': isEditorActive('codeBlock') }"
-          @click="editor?.chain().focus().toggleCodeBlock().run()"
+          @click="insertCodeBlock"
         >
           <template #icon><CodeSandboxOutlined /></template>
         </a-button>
       </a-tooltip>
+      <a-dropdown>
+        <a-button type="text" size="small">
+          <span>{{ currentCodeThemeLabel }}</span>
+        </a-button>
+        <template #overlay>
+          <a-menu @click="handleCodeThemeClick">
+            <a-menu-item v-for="item in codeThemes" :key="item.value">
+              {{ item.label }}
+            </a-menu-item>
+          </a-menu>
+        </template>
+      </a-dropdown>
+      <a-dropdown>
+        <a-button type="text" size="small">
+          <span>{{ currentCodeLanguageLabel }}</span>
+        </a-button>
+        <template #overlay>
+          <a-menu @click="handleCodeLanguageClick">
+            <a-menu-item v-for="item in codeLanguages" :key="item.value">
+              {{ item.label }}
+            </a-menu-item>
+          </a-menu>
+        </template>
+      </a-dropdown>
     </div>
 
     <!-- 第四组：对齐 -->
@@ -293,11 +403,100 @@
         </a-button>
       </a-tooltip>
     </div>
+
+    <div class="menubar-group" v-if="isEditorActive('image')">
+      <a-divider type="vertical" />
+      <span class="image-size-label">图片宽度</span>
+      <a-tooltip title="小图">
+        <a-button 
+          type="text" 
+          size="small" 
+          @click="setImageWidth('25%')"
+        >
+          S
+        </a-button>
+      </a-tooltip>
+      <a-tooltip title="中图">
+        <a-button 
+          type="text" 
+          size="small" 
+          @click="setImageWidth('50%')"
+        >
+          M
+        </a-button>
+      </a-tooltip>
+      <a-tooltip title="大图">
+        <a-button 
+          type="text" 
+          size="small" 
+          @click="setImageWidth('100%')"
+        >
+          L
+        </a-button>
+      </a-tooltip>
+      <div class="image-size-slider">
+        <span class="image-size-value">{{ imageWidthPercent }}%</span>
+        <a-slider
+          :min="10"
+          :max="100"
+          :step="5"
+          :value="imageWidthPercent"
+          @change="handleImageSliderChange"
+          style="width: 120px;"
+        />
+      </div>
+    </div>
+
+    <a-modal
+      v-model:open="showImageModal"
+      title="插入图片"
+      :confirm-loading="uploadingImage"
+      @ok="handleImageConfirm"
+      @cancel="handleImageCancel"
+      destroyOnClose
+    >
+      <div class="image-upload-modal">
+        <a-upload
+          :before-upload="handleBeforeUpload"
+          :max-count="1"
+          :show-upload-list="false"
+        >
+          <a-button type="primary">选择本地图片</a-button>
+        </a-upload>
+        <div v-if="selectedImageFile" class="selected-file-name">
+          已选择: {{ selectedImageFile.name }}
+        </div>
+        <div v-else class="selected-file-placeholder">
+          暂未选择图片
+        </div>
+      </div>
+    </a-modal>
+
+    <a-modal
+      v-model:open="showTableModal"
+      title="插入表格"
+      @ok="handleTableConfirm"
+      @cancel="handleTableCancel"
+      destroyOnClose
+    >
+      <a-form :model="tableForm" layout="vertical">
+        <a-form-item label="行数">
+          <a-input-number v-model:value="tableForm.rows" :min="1" :max="20" style="width: 100%" />
+        </a-form-item>
+        <a-form-item label="列数">
+          <a-input-number v-model:value="tableForm.cols" :min="1" :max="20" style="width: 100%" />
+        </a-form-item>
+        <a-form-item label="包含表头">
+          <a-switch v-model:checked="tableForm.withHeaderRow" />
+        </a-form-item>
+      </a-form>
+    </a-modal>
+
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import {
   UndoOutlined,
   RedoOutlined,
@@ -306,6 +505,7 @@ import {
   UnderlineOutlined,
   StrikethroughOutlined,
   CodeOutlined,
+  FontColorsOutlined,
   FontSizeOutlined,
   UnorderedListOutlined,
   OrderedListOutlined,
@@ -323,15 +523,20 @@ import {
   MinusSquareOutlined,
   LineOutlined,
   DeleteOutlined,
+  CheckOutlined,
 } from '@ant-design/icons-vue'
 import { Editor } from '@tiptap/vue-3'
+import { message } from 'ant-design-vue'
+import { documentApi } from '@/api/documents'
 
 interface Props {
   editor: Editor | null
+  documentId: number | null
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  editor: null
+  editor: null,
+  documentId: null,
 })
 
 // 检查编辑器是否完全初始化
@@ -385,6 +590,184 @@ const canEditorDo = (name: 'undo' | 'redo') => {
   }
 }
 
+const presetTextColors = [
+  { label: '黑色', value: '#000000' },
+  { label: '红色', value: '#f5222d' },
+  { label: '橙色', value: '#fa8c16' },
+  { label: '绿色', value: '#52c41a' },
+  { label: '蓝色', value: '#1677ff' },
+  { label: '紫色', value: '#722ed1' },
+]
+
+const presetFontSizes = [
+  { label: '12px', value: '12px' },
+  { label: '14px', value: '14px' },
+  { label: '16px', value: '16px' },
+  { label: '18px', value: '18px' },
+  { label: '24px', value: '24px' },
+  { label: '32px', value: '32px' },
+]
+
+const codeThemes = [
+  { label: '暗色', value: 'dark' },
+  { label: '浅色', value: 'light' },
+  { label: '边框', value: 'bordered' },
+]
+
+const codeLanguages = [
+  { label: '自动', value: 'plaintext' },
+  { label: 'JavaScript', value: 'javascript' },
+  { label: 'TypeScript', value: 'typescript' },
+  { label: 'Java', value: 'java' },
+  { label: 'Python', value: 'python' },
+  { label: 'JSON', value: 'json' },
+  { label: 'HTML', value: 'html' },
+  { label: 'CSS', value: 'css' },
+  { label: 'Shell', value: 'bash' },
+]
+
+const customTextColorInput = ref('')
+const customFontSizeInput = ref('')
+
+const currentTextColor = computed(() => {
+  if (!isEditorReady.value) return null
+  try {
+    const attrs = props.editor!.getAttributes('textStyle') as any
+    return (attrs?.color as string | null | undefined) ?? null
+  } catch {
+    return null
+  }
+})
+
+const currentFontSize = computed(() => {
+  if (!isEditorReady.value) return null
+  try {
+    const attrs = props.editor!.getAttributes('textStyle') as any
+    return (attrs?.fontSize as string | null | undefined) ?? null
+  } catch {
+    return null
+  }
+})
+
+const currentFontSizeLabel = computed(() => {
+  return currentFontSize.value || '字号'
+})
+
+const currentCodeBlockAttrs = computed(() => {
+  if (!isEditorReady.value) {
+    return {
+      language: 'plaintext',
+      theme: 'dark',
+    }
+  }
+  try {
+    const attrs = props.editor!.getAttributes('codeBlock') as any
+    return {
+      language: (attrs?.language as string) || 'plaintext',
+      theme: (attrs?.theme as string) || 'dark',
+    }
+  } catch {
+    return {
+      language: 'plaintext',
+      theme: 'dark',
+    }
+  }
+})
+
+const currentCodeThemeLabel = computed(() => {
+  const currentTheme = currentCodeBlockAttrs.value.theme
+  const found = codeThemes.find(item => item.value === currentTheme)
+  return found ? found.label : '暗色'
+})
+
+const currentCodeLanguageLabel = computed(() => {
+  const currentLanguage = currentCodeBlockAttrs.value.language
+  const found = codeLanguages.find(item => item.value === currentLanguage)
+  return found ? found.label : '自动'
+})
+
+const applyTextColor = (value: string | null) => {
+  if (!isEditorReady.value) return
+  ;(props.editor as any)?.chain().focus().setTextColor(value).run()
+}
+
+const applyFontSize = (value: string | null) => {
+  if (!isEditorReady.value) return
+  ;(props.editor as any)?.chain().focus().setFontSize(value).run()
+}
+
+const handleCodeThemeClick = ({ key }: any) => {
+  if (!isEditorReady.value) {
+    return
+  }
+  ;(props.editor as any)
+    ?.chain()
+    .focus()
+    .updateAttributes('codeBlock', { theme: String(key) })
+    .run()
+}
+
+const handleCodeLanguageClick = ({ key }: any) => {
+  if (!isEditorReady.value) {
+    return
+  }
+  ;(props.editor as any)
+    ?.chain()
+    .focus()
+    .updateAttributes('codeBlock', { language: String(key) })
+    .run()
+}
+
+const confirmCustomTextColor = () => {
+  if (!isEditorReady.value) return
+  const trimmed = customTextColorInput.value.trim()
+  if (!trimmed) {
+    applyTextColor(null)
+    return
+  }
+  applyTextColor(trimmed)
+}
+
+const confirmCustomFontSize = () => {
+  if (!isEditorReady.value) return
+  const trimmed = customFontSizeInput.value.trim()
+  if (!trimmed) {
+    applyFontSize(null)
+    return
+  }
+  applyFontSize(trimmed)
+}
+
+const handleTextColorClick = ({ key }: any) => {
+  if (!isEditorReady.value) return
+  if (key === '__default__') {
+    applyTextColor(null)
+    return
+  }
+  if (key === '__custom__') return
+  applyTextColor(String(key))
+}
+
+const handleFontSizeClick = ({ key }: any) => {
+  if (!isEditorReady.value) return
+  if (key === '__default__') {
+    applyFontSize(null)
+    return
+  }
+  if (key === '__custom__') return
+  applyFontSize(String(key))
+}
+
+const toggleSuperscript = () => {
+  if (!isEditorReady.value) return
+  ;(props.editor as any)?.chain().focus().toggleSuperscript().run()
+}
+
+const toggleSubscript = () => {
+  if (!isEditorReady.value) return
+  ;(props.editor as any)?.chain().focus().toggleSubscript().run()
+}
+
 // 处理标题点击
 const handleHeadingClick = ({ key }: any) => {
   const level = parseInt(key)
@@ -398,35 +781,193 @@ const handleHeadingClick = ({ key }: any) => {
   }
 }
 
+const showImageModal = ref(false)
+const uploadingImage = ref(false)
+const selectedImageFile = ref<File | null>(null)
+
+const showTableModal = ref(false)
+const tableForm = ref({
+  rows: 3,
+  cols: 3,
+  withHeaderRow: true,
+})
+
+const handleBeforeUpload = (file: File) => {
+  selectedImageFile.value = file
+  return false
+}
+
+const resetImageState = () => {
+  uploadingImage.value = false
+  selectedImageFile.value = null
+}
+
+const handleImageCancel = () => {
+  showImageModal.value = false
+  resetImageState()
+}
+
+const handleImageConfirm = async () => {
+  if (!props.editor) {
+    return
+  }
+
+  if (!selectedImageFile.value) {
+    message.error('请选择要上传的图片')
+    return
+  }
+
+  const docId = props.documentId
+  if (!docId || docId <= 0) {
+    message.error('文档ID无效，无法上传图片')
+    return
+  }
+
+  try {
+    uploadingImage.value = true
+    const res = await documentApi.uploadDocumentImage(docId, selectedImageFile.value)
+    if (!res || res.code !== 200 || !res.data || !res.data.url) {
+      message.error(res?.message || '上传图片失败')
+      return
+    }
+    props.editor.chain().focus().setImage({ src: res.data.url }).run()
+    showImageModal.value = false
+    resetImageState()
+  } catch (error: any) {
+    message.error(error?.message || '上传图片失败')
+  } finally {
+    uploadingImage.value = false
+  }
+}
+
+const setImageWidth = (width: string) => {
+  if (!isEditorReady.value) {
+    return
+  }
+  props.editor?.chain().focus().updateAttributes('image', { width }).run()
+}
+
+const imageWidthPercent = computed(() => {
+  if (!isEditorReady.value) {
+    return 100
+  }
+  try {
+    const attrs = props.editor!.getAttributes('image') as any
+    const width = attrs?.width as string | undefined
+    if (!width) return 100
+    if (width.endsWith('%')) {
+      const num = Number(width.slice(0, -1))
+      if (Number.isFinite(num) && num > 0) {
+        return Math.min(100, Math.max(10, Math.round(num)))
+      }
+    }
+    return 100
+  } catch {
+    return 100
+  }
+})
+
+const handleImageSliderChange = (value: number) => {
+  if (!isEditorReady.value) {
+    return
+  }
+  const safe = Math.min(100, Math.max(10, Math.round(value)))
+  props.editor?.chain().focus().updateAttributes('image', { width: `${safe}%` }).run()
+}
+
+const normalizeHref = (input: string) => {
+  const value = input.trim()
+  if (!value) return ''
+  if (value.startsWith('#')) return value
+  if (value.startsWith('/')) return value
+  if (/^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)) return value
+  return `https://${value}`
+}
+
 // 添加链接
 const addLink = () => {
-  const url = window.prompt('请输入链接地址:')
+  if (!isEditorReady.value) {
+    return
+  }
+
+  const { empty, from } = props.editor!.state.selection
+  const previousUrl = (props.editor!.getAttributes('link') as any)?.href || ''
+  const url = window.prompt('请输入链接地址:', previousUrl)
   
   if (url === null) {
     return
   }
   
-  if (url === '') {
-    props.editor?.chain().focus().unsetLink().run()
+  const normalized = normalizeHref(url)
+  if (!normalized) {
+    props.editor?.chain().focus().extendMarkRange('link').unsetLink().run()
   } else {
-    props.editor?.chain().focus().setLink({ href: url }).run()
+    const chain = props.editor!.chain().focus()
+    if (empty) {
+      chain
+        .insertContent(normalized)
+        .setTextSelection({ from, to: from + normalized.length })
+        .setLink({ href: normalized })
+        .setTextSelection(from + normalized.length)
+        .run()
+    } else {
+      chain.extendMarkRange('link').setLink({ href: normalized }).run()
+    }
   }
 }
 
 // 添加图片
 const addImage = () => {
-  const url = window.prompt('请输入图片地址:')
-  
-  if (url) {
-    props.editor?.chain().focus().setImage({ src: url }).run()
+  if (!isEditorReady.value) {
+    return
   }
+  showImageModal.value = true
 }
 
 // 添加表格
 const addTable = () => {
-  props.editor?.chain().focus()
-    .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-    .run()
+  if (!isEditorReady.value) {
+    return
+  }
+
+  showTableModal.value = true
+}
+
+const insertCodeBlock = () => {
+  if (!isEditorReady.value) {
+    return
+  }
+
+  const chain = props.editor!.chain().focus()
+  if (props.editor!.isActive('codeBlock')) {
+    chain.toggleCodeBlock().run()
+  } else {
+    ;(chain as any).setCodeBlock().run()
+  }
+}
+
+const handleTableCancel = () => {
+  showTableModal.value = false
+}
+
+const handleTableConfirm = () => {
+  if (!isEditorReady.value) {
+    return
+  }
+
+  const rows = Number(tableForm.value.rows)
+  const cols = Number(tableForm.value.cols)
+  if (!Number.isFinite(rows) || !Number.isFinite(cols) || rows < 1 || cols < 1 || rows > 20 || cols > 20) {
+    message.error('行数/列数不合法')
+    return
+  }
+
+  props.editor?.chain().focus().insertTable({
+    rows: Math.round(rows),
+    cols: Math.round(cols),
+    withHeaderRow: !!tableForm.value.withHeaderRow,
+  }).run()
+  showTableModal.value = false
 }
 </script>
 
@@ -493,6 +1034,43 @@ const addTable = () => {
 :deep(.ant-menu-item.is-active) {
   background: #e6f7ff;
   color: #1890ff;
+}
+
+.color-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  display: inline-block;
+}
+
+.color-swatch {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.font-size-indicator {
+  min-width: 32px;
+  text-align: left;
+}
+
+.custom-input-item {
+  cursor: default;
+}
+
+.custom-input-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.custom-input-row :deep(.ant-input) {
+  width: 120px;
 }
 
 /* 响应式设计 */

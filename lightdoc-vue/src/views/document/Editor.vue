@@ -47,6 +47,21 @@
           <a-button type="text" v-if="isOwner || canManageMembers" @click="openSettings">
             <template #icon><SettingOutlined /></template>
           </a-button>
+          <a-dropdown>
+            <a-button>
+              导出
+            </a-button>
+            <template #overlay>
+              <a-menu>
+                <a-menu-item key="export-json" @click="exportAsJson">
+                  导出为 JSON
+                </a-menu-item>
+                <a-menu-item key="export-markdown" @click="exportAsMarkdown">
+                  导出为 Markdown
+                </a-menu-item>
+              </a-menu>
+            </template>
+          </a-dropdown>
           <a-button type="primary" @click="handleSave">
             <template #icon><SaveOutlined /></template>
             <span>保存</span>
@@ -57,7 +72,7 @@
     
     <!-- 第二行：编辑器菜单栏 -->
     <div v-if="editorInstance" class="editor-menubar">
-      <EditorMenuBar :editor="editorInstance" />
+      <EditorMenuBar :editor="editorInstance" :document-id="Number(documentId)" />
     </div>
 
     <!-- 第三行：编辑器内容区 -->
@@ -69,7 +84,19 @@
           <span>目录</span>
         </div>
         <div class="toc-content">
-          <div class="toc-empty">暂无目录</div>
+          <template v-if="tocItems.length">
+            <div
+              v-for="item in tocItems"
+              :key="item.id"
+              class="toc-item"
+              :class="{ active: item.id === activeTocId }"
+              :style="{ paddingLeft: `${(item.level - 1) * 12}px` }"
+              @click="scrollToHeading(item)"
+            >
+              <span class="toc-item-text">{{ item.text }}</span>
+            </div>
+          </template>
+          <div v-else class="toc-empty">暂无目录</div>
         </div>
       </div>
 
@@ -211,15 +238,32 @@
                     </template>
                   </a-list-item-meta>
                   <template #actions>
-                    <a-popconfirm
-                      v-if="canEdit"
-                      title="确定要将文档回滚到该版本吗？"
-                      ok-text="回滚"
-                      cancel-text="取消"
-                      @confirm="() => handleRollbackVersion(item)"
-                    >
-                      <a-button type="link" size="small">回滚</a-button>
-                    </a-popconfirm>
+                    <a-dropdown v-if="canEdit" placement="bottomRight">
+                      <a-button type="link" size="small">
+                        更多
+                      </a-button>
+                      <template #overlay>
+                        <a-menu>
+                          <a-menu-item key="preview" @click="handlePreviewVersion(item)">
+                            预览此版本
+                          </a-menu-item>
+                          <a-menu-item key="compare" @click="handleCompareWithCurrent(item)">
+                            与当前版本比对
+                          </a-menu-item>
+                          <a-menu-divider />
+                          <a-menu-item key="rollback">
+                            <a-popconfirm
+                              title="确定要将文档回滚到该版本吗？"
+                              ok-text="回滚"
+                              cancel-text="取消"
+                              @confirm="() => handleRollbackVersion(item)"
+                            >
+                              <span>回滚到此版本</span>
+                            </a-popconfirm>
+                          </a-menu-item>
+                        </a-menu>
+                      </template>
+                    </a-dropdown>
                   </template>
                 </a-list-item>
               </template>
@@ -257,12 +301,22 @@
                         </div>
                         <div class="chat-bubble-wrapper">
                           <div class="chat-meta">
-                            <span class="chat-author">
-                              {{ getCommentDisplayName(comment) }}
-                            </span>
-                            <span class="chat-time">
-                              {{ formatCommentTime(comment.createdAt) }}
-                            </span>
+                            <template v-if="isSelfComment(comment)">
+                              <span class="chat-time">
+                                {{ formatCommentTime(comment.createdAt) }}
+                              </span>
+                              <span class="chat-author">
+                                {{ getCommentDisplayName(comment) }}
+                              </span>
+                            </template>
+                            <template v-else>
+                              <span class="chat-author">
+                                {{ getCommentDisplayName(comment) }}
+                              </span>
+                              <span class="chat-time">
+                                {{ formatCommentTime(comment.createdAt) }}
+                              </span>
+                            </template>
                           </div>
                           <div class="chat-bubble">
                             {{ comment.content }}
@@ -336,12 +390,22 @@
                             </div>
                             <div class="chat-bubble-wrapper">
                               <div class="chat-meta">
-                                <span class="chat-author">
-                                  {{ getCommentDisplayName(reply) }}
-                                </span>
-                                <span class="chat-time">
-                                  {{ formatCommentTime(reply.createdAt) }}
-                                </span>
+                                <template v-if="isSelfComment(reply)">
+                                  <span class="chat-time">
+                                    {{ formatCommentTime(reply.createdAt) }}
+                                  </span>
+                                  <span class="chat-author">
+                                    {{ getCommentDisplayName(reply) }}
+                                  </span>
+                                </template>
+                                <template v-else>
+                                  <span class="chat-author">
+                                    {{ getCommentDisplayName(reply) }}
+                                  </span>
+                                  <span class="chat-time">
+                                    {{ formatCommentTime(reply.createdAt) }}
+                                  </span>
+                                </template>
                               </div>
                               <div class="chat-bubble chat-bubble-reply">
                                 {{ reply.content }}
@@ -498,6 +562,7 @@
                   <a-select-option :value="0">只读</a-select-option>
                   <a-select-option :value="1">评论</a-select-option>
                   <a-select-option :value="2">编辑</a-select-option>
+                  <a-select-option :value="3">管理</a-select-option>
                 </a-select>
                 <span
                   v-else
@@ -566,11 +631,66 @@
         </a-form-item>
       </a-form>
     </a-modal>
+    <a-modal
+      v-model:open="versionPreviewVisible"
+      :title="versionPreviewTitle"
+      :footer="null"
+      width="80%"
+    >
+      <a-spin :spinning="versionPreviewLoading">
+        <div class="version-preview-wrapper">
+          <div v-if="previewVersionEditor" class="version-preview-editor">
+            <EditorContent
+              :editor="previewVersionEditor"
+              class="editor-content readonly-preview"
+            />
+          </div>
+          <div v-else class="preview-empty">
+            暂无内容
+          </div>
+        </div>
+      </a-spin>
+    </a-modal>
+    <a-modal
+      v-model:open="versionCompareVisible"
+      :title="versionCompareTitle"
+      :footer="null"
+      width="90%"
+    >
+      <a-spin :spinning="versionCompareLoading">
+        <div class="version-compare-container">
+          <div class="version-compare-column">
+            <div class="version-compare-header">历史版本</div>
+            <div v-if="compareVersionEditor" class="version-compare-editor">
+              <EditorContent
+                :editor="compareVersionEditor"
+                class="editor-content readonly-preview"
+              />
+            </div>
+            <div v-else class="preview-empty">
+              暂无内容
+            </div>
+          </div>
+          <div class="version-compare-column">
+            <div class="version-compare-header">当前版本</div>
+            <div v-if="currentVersionSnapshotEditor" class="version-compare-editor">
+              <EditorContent
+                :editor="currentVersionSnapshotEditor"
+                class="editor-content readonly-preview"
+              />
+            </div>
+            <div v-else class="preview-empty">
+              暂无内容
+            </div>
+          </div>
+        </div>
+      </a-spin>
+    </a-modal>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, shallowRef, computed, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, shallowRef, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import {
   ArrowLeftOutlined,
@@ -587,9 +707,12 @@ import {
   SettingOutlined,
 } from '@ant-design/icons-vue'
 import { EditorContent, Editor } from '@tiptap/vue-3'
-import { Extension } from '@tiptap/core'
+import { Extension, Mark } from '@tiptap/core'
 import StarterKit from '@tiptap/starter-kit'
+import CodeBlock from '@tiptap/extension-code-block'
 import Image from '@tiptap/extension-image'
+import Link from '@tiptap/extension-link'
+import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
 import { Table } from '@tiptap/extension-table'
 import { TableRow } from '@tiptap/extension-table-row'
@@ -607,6 +730,371 @@ import { documentApi, type DocumentSettingsDTO, type DocumentVersionDTO } from '
 import { documentInviteApi, type MemberDTO } from '@/api/documentInvites'
 import { authApi, type UserInfo } from '@/api/auth'
 import { commentApi, type CommentDTO } from '@/api/comments'
+import { Plugin, PluginKey, TextSelection } from 'prosemirror-state'
+import { Decoration, DecorationSet } from 'prosemirror-view'
+
+const CustomImage = Image.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      width: {
+        default: null,
+        renderHTML: attributes => {
+          if (!attributes.width) return {}
+          return { style: `width: ${attributes.width}` }
+        },
+        parseHTML: element =>
+          (element as any).style?.width || (element as any).getAttribute?.('width'),
+      },
+    }
+  },
+  addNodeView() {
+    return ({ node, editor, getPos }: any) => {
+      let currentNode = node
+
+      const dom = document.createElement('span')
+      dom.classList.add('resizable-image-wrapper')
+      dom.setAttribute('data-type', 'resizable-image')
+      dom.style.display = 'inline-block'
+      dom.style.position = 'relative'
+
+      const img = document.createElement('img')
+      img.src = currentNode.attrs.src || ''
+      img.alt = currentNode.attrs.alt || ''
+      img.title = currentNode.attrs.title || ''
+      if (currentNode.attrs.width) {
+        img.style.width = currentNode.attrs.width
+      }
+      img.style.display = 'block'
+      img.draggable = false
+      dom.appendChild(img)
+
+      const handle = document.createElement('span')
+      handle.classList.add('resizable-image-handle')
+      dom.appendChild(handle)
+
+      const updateHandlePosition = () => {
+        const wrapperRect = dom.getBoundingClientRect()
+        const imgRect = img.getBoundingClientRect()
+        const left = imgRect.right - wrapperRect.left - handle.offsetWidth / 2
+        const top = imgRect.bottom - wrapperRect.top - handle.offsetHeight / 2
+        handle.style.left = `${left}px`
+        handle.style.top = `${top}px`
+      }
+
+      let startX = 0
+      let startWidth = 0
+
+      const onMouseMove = (event: MouseEvent) => {
+        const diff = event.clientX - startX
+        let newWidthPx = startWidth + diff
+
+        const editorDom = editor.view.dom as HTMLElement
+        const editorRect = editorDom.getBoundingClientRect()
+        const parentRect = dom.parentElement
+          ? dom.parentElement.getBoundingClientRect()
+          : editorRect
+        const containerWidth = parentRect.width || newWidthPx || 1
+
+        if (newWidthPx < 20) {
+          newWidthPx = 20
+        }
+        if (newWidthPx > containerWidth) {
+          newWidthPx = containerWidth
+        }
+
+        const percent = Math.round((newWidthPx / containerWidth) * 100)
+        img.style.width = `${percent}%`
+        updateHandlePosition()
+      }
+
+      const onMouseUp = () => {
+        window.removeEventListener('mousemove', onMouseMove)
+        window.removeEventListener('mouseup', onMouseUp)
+
+        const width = img.style.width || null
+        const pos = typeof getPos === 'function' ? getPos() : null
+        if (typeof pos === 'number') {
+          editor.commands.command(({ tr }: any) => {
+            tr.setNodeMarkup(pos, undefined, {
+              ...currentNode.attrs,
+              width,
+            })
+            return true
+          })
+        }
+      }
+
+      const onMouseDown = (event: MouseEvent) => {
+        event.preventDefault()
+        event.stopPropagation()
+        startX = event.clientX
+        startWidth = img.getBoundingClientRect().width
+        updateHandlePosition()
+        window.addEventListener('mousemove', onMouseMove)
+        window.addEventListener('mouseup', onMouseUp)
+      }
+
+      handle.addEventListener('mousedown', onMouseDown)
+
+      return {
+        dom,
+        selectNode() {
+          dom.classList.add('has-selection')
+        },
+        deselectNode() {
+          dom.classList.remove('has-selection')
+        },
+        update(updatedNode: any) {
+          if (updatedNode.type !== currentNode.type) {
+            return false
+          }
+          currentNode = updatedNode
+          if (updatedNode.attrs.src && updatedNode.attrs.src !== img.src) {
+            img.src = updatedNode.attrs.src
+          }
+          img.alt = updatedNode.attrs.alt || ''
+          img.title = updatedNode.attrs.title || ''
+          if (updatedNode.attrs.width) {
+            img.style.width = updatedNode.attrs.width
+          } else {
+            img.style.removeProperty('width')
+          }
+          updateHandlePosition()
+          return true
+        },
+        destroy() {
+          handle.removeEventListener('mousedown', onMouseDown)
+        },
+      }
+    }
+  },
+})
+
+const CodeBlockWithTheme = CodeBlock.extend({
+  addAttributes() {
+    return {
+      ...this.parent?.(),
+      language: {
+        default: 'plaintext',
+        parseHTML: element => {
+          const value = (element as HTMLElement).getAttribute('data-language') || ''
+          return value || 'plaintext'
+        },
+        renderHTML: attributes => {
+          const language = (attributes as any)?.language || 'plaintext'
+          return {
+            'data-language': language,
+          }
+        },
+      },
+      theme: {
+        default: 'dark',
+        parseHTML: element => {
+          const value = (element as HTMLElement).getAttribute('data-code-theme') || ''
+          return value || 'dark'
+        },
+        renderHTML: attributes => {
+          const theme = (attributes as any)?.theme || 'dark'
+          return {
+            'data-code-theme': theme,
+          }
+        },
+      },
+    }
+  },
+})
+
+const CodeBlockLineNumbersExtension = Extension.create({
+  name: 'codeBlockLineNumbers',
+  addProseMirrorPlugins() {
+    return [
+      new Plugin({
+        key: new PluginKey('codeBlockLineNumbers'),
+        props: {
+          decorations(state) {
+            const { doc } = state
+            const decorations: Decoration[] = []
+
+            doc.descendants((node, pos) => {
+              if (node.type.name !== 'codeBlock') {
+                return
+              }
+              const text = node.textContent || ''
+              const lines = text.split('\n').length || 1
+              const safeLines = lines > 0 ? lines : 1
+              const numbers = Array.from({ length: safeLines }, (_, index) =>
+                String(index + 1),
+              ).join('\n')
+
+              decorations.push(
+                Decoration.node(pos, pos + node.nodeSize, {
+                  'data-line-numbers': numbers,
+                  'data-line-count': String(safeLines),
+                }),
+              )
+            })
+
+            if (!decorations.length) {
+              return null
+            }
+
+            return DecorationSet.create(doc, decorations)
+          },
+        },
+      }),
+    ]
+  },
+})
+
+const TextStyleMark = Mark.create({
+  name: 'textStyle',
+  addAttributes() {
+    return {
+      color: {
+        default: null,
+        parseHTML: element => (element as HTMLElement).style.color || null,
+        renderHTML: () => ({}),
+      },
+      fontSize: {
+        default: null,
+        parseHTML: element => (element as HTMLElement).style.fontSize || null,
+        renderHTML: () => ({}),
+      },
+    }
+  },
+  parseHTML() {
+    return [
+      {
+        tag: 'span[style]',
+      },
+    ]
+  },
+  renderHTML({ HTMLAttributes }) {
+    const attrs = HTMLAttributes as any
+    const color = attrs.color as string | null | undefined
+    const fontSize = attrs.fontSize as string | null | undefined
+    const { color: _c, fontSize: _f, ...rest } = attrs
+    const styles: string[] = []
+    if (rest.style) {
+      styles.push(String(rest.style))
+    }
+    if (color) {
+      styles.push(`color: ${color};`)
+    }
+    if (fontSize) {
+      styles.push(`font-size: ${fontSize};`)
+    }
+    const mergedStyle = styles.filter(Boolean).join(' ')
+    return ['span', { ...rest, ...(mergedStyle ? { style: mergedStyle } : {}) }, 0]
+  },
+  addCommands() {
+    return {
+      setTextColor:
+        (color: string | null) =>
+        ({ chain, editor }: any) => {
+          const current = (editor.getAttributes('textStyle') as any) || {}
+          const next = {
+            color,
+            fontSize: current.fontSize ?? null,
+          }
+          let c = chain().setMark('textStyle', next)
+          if (!next.color && !next.fontSize) {
+            c = c.unsetMark('textStyle')
+          }
+          return c.run()
+        },
+      setFontSize:
+        (fontSize: string | null) =>
+        ({ chain, editor }: any) => {
+          const current = (editor.getAttributes('textStyle') as any) || {}
+          const next = {
+            color: current.color ?? null,
+            fontSize,
+          }
+          let c = chain().setMark('textStyle', next)
+          if (!next.color && !next.fontSize) {
+            c = c.unsetMark('textStyle')
+          }
+          return c.run()
+        },
+      unsetTextColor:
+        () =>
+        ({ chain, editor }: any) => {
+          const current = (editor.getAttributes('textStyle') as any) || {}
+          const next = {
+            color: null,
+            fontSize: current.fontSize ?? null,
+          }
+          let c = chain().setMark('textStyle', next)
+          if (!next.color && !next.fontSize) {
+            c = c.unsetMark('textStyle')
+          }
+          return c.run()
+        },
+      unsetFontSize:
+        () =>
+        ({ chain, editor }: any) => {
+          const current = (editor.getAttributes('textStyle') as any) || {}
+          const next = {
+            color: current.color ?? null,
+            fontSize: null,
+          }
+          let c = chain().setMark('textStyle', next)
+          if (!next.color && !next.fontSize) {
+            c = c.unsetMark('textStyle')
+          }
+          return c.run()
+        },
+    } as any
+  },
+})
+
+const SuperscriptMark = Mark.create({
+  name: 'superscript',
+  parseHTML() {
+    return [
+      {
+        tag: 'sup',
+      },
+    ]
+  },
+  renderHTML() {
+    return ['sup', 0]
+  },
+  addCommands() {
+    return {
+      toggleSuperscript:
+        () =>
+        ({ chain }: any) => {
+          return chain().unsetMark('subscript').toggleMark('superscript').run()
+        },
+    } as any
+  },
+})
+
+const SubscriptMark = Mark.create({
+  name: 'subscript',
+  parseHTML() {
+    return [
+      {
+        tag: 'sub',
+      },
+    ]
+  },
+  renderHTML() {
+    return ['sub', 0]
+  },
+  addCommands() {
+    return {
+      toggleSubscript:
+        () =>
+        ({ chain }: any) => {
+          return chain().unsetMark('superscript').toggleMark('subscript').run()
+        },
+    } as any
+  },
+})
 
 // ==================== 路由和基础状态 ====================
 const router = useRouter()
@@ -632,6 +1120,13 @@ const user = computed(() => ({
 // ==================== Tiptap 编辑器 ====================
 const editor = shallowRef<Editor | null>(null)
 const editorInstance = computed(() => editor.value)
+
+interface TocItem {
+  id: string
+  level: number
+  text: string
+  pos: number
+}
 
 // ==================== 能力与成员与在线状态 ====================
 const canView = ref(false)
@@ -673,7 +1168,7 @@ const memberDetail = ref<MemberWithOnline | null>(null)
 const memberDetailPermission = ref<number | null>(null)
 
 const getPermissionLabel = (level?: number) => {
-  if (level === 3) return '所有者'
+  if (level === 3) return '管理'
   if (level === 2) return '编辑'
   if (level === 1) return '评论'
   if (level === 0) return '只读'
@@ -762,6 +1257,9 @@ const isTocVisible = ref(true)
 const isRightSidebarVisible = ref(true)
 const activeRightTab = ref<string>('team')
 const documentOwnerId = ref<number | null>(null)
+const tocItems = ref<TocItem[]>([])
+const activeTocId = ref('')
+let tocUpdateTimer: ReturnType<typeof setTimeout> | null = null
 
 const showInviteModal = ref(false)
 const searchKeyword = ref('')
@@ -774,6 +1272,17 @@ const versionsLoading = ref(false)
 const showCreateVersionModal = ref(false)
 const creatingVersion = ref(false)
 const newVersionDescription = ref('')
+
+const versionPreviewVisible = ref(false)
+const versionPreviewLoading = ref(false)
+const previewVersionEditor = shallowRef<Editor | null>(null)
+const versionPreviewTitle = ref('')
+
+const versionCompareVisible = ref(false)
+const versionCompareLoading = ref(false)
+const compareVersionEditor = shallowRef<Editor | null>(null)
+const currentVersionSnapshotEditor = shallowRef<Editor | null>(null)
+const versionCompareTitle = ref('')
 
 const comments = ref<CommentDTO[]>([])
 const commentsLoading = ref(false)
@@ -800,6 +1309,69 @@ const applyAutosaveSettings = () => {
       autosaveTimer = null
     }
   }
+}
+
+const updateActiveToc = () => {
+  const instance = editor.value
+  if (!instance || !tocItems.value.length) {
+    activeTocId.value = ''
+    return
+  }
+  const from = instance.state.selection.from
+  let currentId = ''
+  for (const item of tocItems.value) {
+    if (item.pos <= from) {
+      currentId = item.id
+    } else {
+      break
+    }
+  }
+  activeTocId.value = currentId
+}
+
+const buildToc = () => {
+  const instance = editor.value
+  if (!instance) {
+    tocItems.value = []
+    activeTocId.value = ''
+    return
+  }
+  const items: TocItem[] = []
+  instance.state.doc.descendants((node, pos) => {
+    if (node.type.name !== 'heading') return
+    const text = node.textContent?.trim() || ''
+    if (!text) return
+    const level = Number(node.attrs?.level || 1)
+    const id = node.attrs?.id ? String(node.attrs.id) : `heading-${documentId.value}-${pos}`
+    items.push({
+      id,
+      level: Number.isFinite(level) ? level : 1,
+      text,
+      pos,
+    })
+  })
+  tocItems.value = items
+  updateActiveToc()
+}
+
+const scheduleTocBuild = () => {
+  if (tocUpdateTimer) {
+    clearTimeout(tocUpdateTimer)
+  }
+  tocUpdateTimer = setTimeout(() => {
+    tocUpdateTimer = null
+    buildToc()
+  }, 200)
+}
+
+const scrollToHeading = (item: TocItem) => {
+  const instance = editor.value
+  if (!instance) return
+  const pos = Math.min(item.pos + 1, instance.state.doc.content.size)
+  instance.commands.focus()
+  instance.view.dispatch(
+    instance.state.tr.setSelection(TextSelection.create(instance.state.doc, pos)).scrollIntoView()
+  )
 }
 
 const loadMembersAndOnline = async () => {
@@ -834,7 +1406,11 @@ const loadComments = async () => {
   try {
     const res = await commentApi.getDocumentComments(docId)
     if (res.code === 200 && res.data) {
-      comments.value = res.data
+      comments.value = [...res.data].sort((a, b) => {
+        const tA = a.createdAt ? dayjs(a.createdAt).valueOf() : 0
+        const tB = b.createdAt ? dayjs(b.createdAt).valueOf() : 0
+        return tA - tB
+      })
       await nextTick()
       if (commentsListRef.value) {
         commentsListRef.value.scrollTop = commentsListRef.value.scrollHeight
@@ -1317,10 +1893,26 @@ onMounted(async () => {
   const editorInstance = new Editor({
     extensions: [
       StarterKit.configure({
-        undoRedo: false
+        undoRedo: false,
+        codeBlock: false,
       }),
+      CodeBlockWithTheme,
+      CodeBlockLineNumbersExtension,
+      Underline,
+      TextStyleMark,
+      SuperscriptMark,
+      SubscriptMark,
       yjsProseMirror,
-      Image.configure({
+      Link.configure({
+        openOnClick: false,
+        linkOnPaste: true,
+        autolink: true,
+        HTMLAttributes: {
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
+      }),
+      CustomImage.configure({
         inline: true,
         allowBase64: true,
       }),
@@ -1339,10 +1931,87 @@ onMounted(async () => {
       attributes: {
         class: 'tiptap-editor-content',
       },
+      handlePaste(_, event) {
+        const clipboardData = event.clipboardData
+        if (!clipboardData) {
+          return false
+        }
+
+        const imageFiles: File[] = []
+        const items = clipboardData.items
+        for (let i = 0; i < items.length; i++) {
+          const item = items[i]
+          if (item.kind === 'file') {
+            const file = item.getAsFile()
+            if (file && file.type.startsWith('image/')) {
+              imageFiles.push(file)
+            }
+          }
+        }
+
+        const html = clipboardData.getData('text/html')
+        const dataUrlMatches: string[] = []
+        if (html && html.includes('data:image')) {
+          const regex = /<img[^>]+src=["'](data:image\/[^"']+)["']/gi
+          let match: RegExpExecArray | null
+          while ((match = regex.exec(html)) !== null) {
+            if (match[1]) {
+              dataUrlMatches.push(match[1])
+            }
+          }
+        }
+
+        if (!imageFiles.length && !dataUrlMatches.length) {
+          return false
+        }
+
+        event.preventDefault()
+
+        const docId = Number(documentId.value)
+        if (!Number.isFinite(docId) || docId <= 0) {
+          message.error('文档ID无效，无法上传粘贴的图片')
+          return true
+        }
+
+        const uploadFile = async (file: File) => {
+          try {
+            const res = await documentApi.uploadDocumentImage(docId, file)
+            if (res && res.code === 200 && res.data && res.data.url) {
+              editorInstance.chain().focus().setImage({ src: res.data.url }).run()
+            } else {
+              message.error(res?.message || '上传粘贴图片失败')
+            }
+          } catch (error: any) {
+            message.error(error?.message || '上传粘贴图片失败')
+          }
+        }
+
+        imageFiles.forEach(file => {
+          uploadFile(file)
+        })
+
+        dataUrlMatches.forEach(dataUrl => {
+          fetch(dataUrl)
+            .then(response => response.blob())
+            .then(blob => {
+              const file = new File([blob], 'pasted-image.png', {
+                type: blob.type || 'image/png',
+              })
+              return uploadFile(file)
+            })
+            .catch(() => {
+              message.error('解析粘贴的图片失败')
+            })
+        })
+
+        return true
+      },
     },
   })
 
   editor.value = editorInstance
+  editorInstance.on('update', scheduleTocBuild)
+  editorInstance.on('selectionUpdate', updateActiveToc)
 
   let seeded = false
   let seedRetry = 0
@@ -1367,6 +2036,7 @@ onMounted(async () => {
     } else {
       editorInstance.commands.setContent('<h2>欢迎使用 Light Doc</h2><p>开始编辑您的文档...</p>')
     }
+    scheduleTocBuild()
   }
   _provider.on('synced', (isSynced: boolean) => {
     if (isSynced) {
@@ -1389,6 +2059,10 @@ onUnmounted(() => {
   if (autosaveTimer) {
     clearTimeout(autosaveTimer)
     autosaveTimer = null
+  }
+  if (tocUpdateTimer) {
+    clearTimeout(tocUpdateTimer)
+    tocUpdateTimer = null
   }
   if (editor.value) {
     editor.value.destroy()
@@ -1434,6 +2108,16 @@ const uint8ArrayToBase64 = (bytes: Uint8Array) => {
     binary += String.fromCharCode(...bytes.subarray(i, i + chunkSize))
   }
   return btoa(binary)
+}
+
+const base64ToUint8Array = (base64: string) => {
+  const binary = atob(base64)
+  const len = binary.length
+  const bytes = new Uint8Array(len)
+  for (let i = 0; i < len; i++) {
+    bytes[i] = binary.charCodeAt(i)
+  }
+  return bytes
 }
 
 const saveYjsSnapshot = async () => {
@@ -1502,6 +2186,354 @@ const handleSave = async () => {
     message.error('保存发生错误')
   }
 }
+
+const downloadFile = (content: string, mime: string, extension: string) => {
+  const encoder = new TextEncoder()
+  const blob = new Blob([encoder.encode(content)], { type: `${mime};charset=utf-8` })
+  const url = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  const title = (documentTitle.value || '文档').trim() || '文档'
+  link.href = url
+  link.download = `${title}.${extension}`
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+  URL.revokeObjectURL(url)
+}
+
+const exportAsJson = () => {
+  if (!editor.value) return
+  const json = editor.value.getJSON()
+  const content = JSON.stringify(json, null, 2)
+  downloadFile(content, 'application/json', 'json')
+}
+
+const serializeTextNodeToMarkdown = (node: any): string => {
+  let text = String(node.text || '')
+  const marks = node.marks || []
+
+  for (const mark of marks) {
+    const type = mark?.type
+    if (type === 'code') {
+      text = `\`${text}\``
+    } else if (type === 'bold') {
+      text = `**${text}**`
+    } else if (type === 'italic') {
+      text = `*${text}*`
+    } else if (type === 'strike') {
+      text = `~~${text}~~`
+    } else if (type === 'link' && mark.attrs?.href) {
+      const href = String(mark.attrs.href)
+      text = `[${text}](${href})`
+    }
+  }
+
+  return text
+}
+
+const serializeNodesToMarkdown = (nodes: any[] | undefined, parentType?: string): string => {
+  if (!nodes || !nodes.length) return ''
+  const parts: string[] = []
+
+  for (const node of nodes) {
+    if (!node) continue
+    const type = node.type
+
+    if (type === 'text') {
+      parts.push(serializeTextNodeToMarkdown(node))
+    } else if (type === 'paragraph') {
+      const inner = serializeNodesToMarkdown(node.content || [], 'paragraph')
+      parts.push(inner.trim())
+    } else if (type === 'heading') {
+      const level = Number(node.attrs?.level || 1)
+      const hashes = '#'.repeat(Math.min(6, Math.max(1, level)))
+      const inner = serializeNodesToMarkdown(node.content || [], 'heading').trim()
+      parts.push(`${hashes} ${inner}`)
+      parts.push('')
+    } else if (type === 'bulletList') {
+      for (const item of node.content || []) {
+        if (!item || item.type !== 'listItem') continue
+        const line = serializeNodesToMarkdown(item.content || [], 'listItem').trim()
+        const lines = line.split('\n')
+        if (!lines.length) continue
+        parts.push(`- ${lines[0]}`)
+        for (let i = 1; i < lines.length; i++) {
+          parts.push(`  ${lines[i]}`)
+        }
+      }
+      parts.push('')
+    } else if (type === 'orderedList') {
+      let index = Number(node.attrs?.start || 1)
+      for (const item of node.content || []) {
+        if (!item || item.type !== 'listItem') continue
+        const line = serializeNodesToMarkdown(item.content || [], 'listItem').trim()
+        const lines = line.split('\n')
+        if (!lines.length) continue
+        parts.push(`${index}. ${lines[0]}`)
+        for (let i = 1; i < lines.length; i++) {
+          parts.push(`   ${lines[i]}`)
+        }
+        index++
+      }
+      parts.push('')
+    } else if (type === 'blockquote') {
+      const inner = serializeNodesToMarkdown(node.content || [], 'blockquote')
+      const lines = inner.split('\n')
+      for (const line of lines) {
+        if (line.trim()) {
+          parts.push(`> ${line}`)
+        } else {
+          parts.push('>')
+        }
+      }
+      parts.push('')
+    } else if (type === 'codeBlock') {
+      const language = String(node.attrs?.language || '').trim()
+      const fence = '```'
+      const codeText = (node.content || [])
+        .map((c: any) => (c.type === 'text' ? String(c.text || '') : ''))
+        .join('')
+      const lines = codeText.split('\n')
+      parts.push(language ? `${fence}${language}` : fence)
+      for (const line of lines) {
+        parts.push(line)
+      }
+      parts.push(fence)
+      parts.push('')
+    } else if (type === 'horizontalRule') {
+      parts.push('---')
+      parts.push('')
+    } else if (type === 'image') {
+      const src = String(node.attrs?.src || '').trim()
+      const alt = String(node.attrs?.alt || '').trim()
+      if (src) {
+        parts.push(`![${alt}](${src})`)
+        parts.push('')
+      }
+    } else if (type === 'hardBreak') {
+      parts.push('')
+    } else if (type === 'table') {
+      for (const row of node.content || []) {
+        if (!row || row.type !== 'tableRow') continue
+        const cells: string[] = []
+        for (const cell of row.content || []) {
+          const cellText = serializeNodesToMarkdown(cell.content || [], 'tableCell').trim()
+          cells.push(cellText.replace(/\|/g, '\\|'))
+        }
+        if (cells.length) {
+          parts.push(`| ${cells.join(' | ')} |`)
+        }
+      }
+      parts.push('')
+    } else {
+      const inner = serializeNodesToMarkdown(node.content || [], type)
+      if (inner) {
+        parts.push(inner)
+        if (!parentType) {
+          parts.push('')
+        }
+      }
+    }
+  }
+
+  let result = parts.join('\n')
+  result = result.replace(/\n{3,}/g, '\n\n')
+  return result.trimEnd()
+}
+
+const exportAsMarkdown = () => {
+  if (!editor.value) return
+  const json = editor.value.getJSON()
+  const markdown = serializeNodesToMarkdown(json.content || [], 'doc')
+  downloadFile(markdown, 'text/markdown', 'md')
+}
+
+const createEditorFromSnapshot = (base64State: string) => {
+  const doc = new Y.Doc()
+  const update = base64ToUint8Array(base64State)
+  Y.applyUpdate(doc, update)
+  const yXmlFragment = doc.getXmlFragment('prosemirror')
+  const yPlugin = Extension.create({
+    name: 'yjsPreviewProseMirror',
+    addProseMirrorPlugins() {
+      return [ySyncPlugin(yXmlFragment)]
+    },
+  })
+
+  return new Editor({
+    extensions: [
+      StarterKit.configure({
+        undoRedo: false,
+        codeBlock: false,
+      }),
+      CodeBlockWithTheme,
+      CodeBlockLineNumbersExtension,
+      Underline,
+      TextStyleMark,
+      SuperscriptMark,
+      SubscriptMark,
+      yPlugin,
+      Link.configure({
+        openOnClick: false,
+        linkOnPaste: true,
+        autolink: true,
+        HTMLAttributes: {
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        },
+      }),
+      CustomImage.configure({
+        inline: true,
+        allowBase64: true,
+      }),
+      TextAlign.configure({
+        types: ['heading', 'paragraph'],
+      }),
+      Table.configure({
+        resizable: true,
+      }),
+      TableRow,
+      TableHeader,
+      TableCell,
+    ],
+    content: '',
+    editable: false,
+    editorProps: {
+      attributes: {
+        class: 'tiptap-editor-content',
+      },
+    },
+  })
+}
+
+const handlePreviewVersion = async (item: DocumentVersionDTO) => {
+  const docId = Number(documentId.value)
+  if (!Number.isFinite(docId) || docId <= 0) return
+  versionPreviewTitle.value = `版本 ${item.versionNumber} 预览`
+  versionPreviewVisible.value = true
+  versionPreviewLoading.value = true
+
+  if (previewVersionEditor.value) {
+    previewVersionEditor.value.destroy()
+    previewVersionEditor.value = null
+  }
+
+  try {
+    const res = await documentApi.getDocumentVersionSnapshot(docId, item.versionNumber)
+    if (res.code === 200 && res.data) {
+      previewVersionEditor.value = createEditorFromSnapshot(res.data)
+    } else {
+      message.error(res.message || '加载版本内容失败')
+    }
+  } catch (e) {
+    console.error('加载版本内容失败', e)
+    message.error('加载版本内容失败')
+  } finally {
+    versionPreviewLoading.value = false
+  }
+}
+
+const handleCompareWithCurrent = async (item: DocumentVersionDTO) => {
+  const docId = Number(documentId.value)
+  if (!Number.isFinite(docId) || docId <= 0) return
+  if (!editor.value) {
+    message.error('文档尚未初始化')
+    return
+  }
+
+  versionCompareTitle.value = `版本 ${item.versionNumber} 与当前版本对比`
+  versionCompareVisible.value = true
+  versionCompareLoading.value = true
+
+  if (compareVersionEditor.value) {
+    compareVersionEditor.value.destroy()
+    compareVersionEditor.value = null
+  }
+  if (currentVersionSnapshotEditor.value) {
+    currentVersionSnapshotEditor.value.destroy()
+    currentVersionSnapshotEditor.value = null
+  }
+
+  try {
+    const snapshotRes = await documentApi.getDocumentVersionSnapshot(docId, item.versionNumber)
+    if (snapshotRes.code === 200 && snapshotRes.data) {
+      compareVersionEditor.value = createEditorFromSnapshot(snapshotRes.data)
+    } else {
+      message.error(snapshotRes.message || '加载历史版本内容失败')
+      return
+    }
+
+    const currentJson = editor.value.getJSON()
+    currentVersionSnapshotEditor.value = new Editor({
+      extensions: [
+        StarterKit.configure({
+          undoRedo: false,
+          codeBlock: false,
+        }),
+        CodeBlockWithTheme,
+        CodeBlockLineNumbersExtension,
+        Underline,
+        TextStyleMark,
+        SuperscriptMark,
+        SubscriptMark,
+        Link.configure({
+          openOnClick: false,
+          linkOnPaste: true,
+          autolink: true,
+          HTMLAttributes: {
+            target: '_blank',
+            rel: 'noopener noreferrer',
+          },
+        }),
+        CustomImage.configure({
+          inline: true,
+          allowBase64: true,
+        }),
+        TextAlign.configure({
+          types: ['heading', 'paragraph'],
+        }),
+        Table.configure({
+          resizable: true,
+        }),
+        TableRow,
+        TableHeader,
+        TableCell,
+      ],
+      content: currentJson,
+      editable: false,
+      editorProps: {
+        attributes: {
+          class: 'tiptap-editor-content',
+        },
+      },
+    })
+  } catch (e) {
+    console.error('加载对比内容失败', e)
+    message.error('加载对比内容失败')
+  } finally {
+    versionCompareLoading.value = false
+  }
+}
+
+watch(versionPreviewVisible, visible => {
+  if (!visible && previewVersionEditor.value) {
+    previewVersionEditor.value.destroy()
+    previewVersionEditor.value = null
+  }
+})
+
+watch(versionCompareVisible, visible => {
+  if (!visible) {
+    if (compareVersionEditor.value) {
+      compareVersionEditor.value.destroy()
+      compareVersionEditor.value = null
+    }
+    if (currentVersionSnapshotEditor.value) {
+      currentVersionSnapshotEditor.value.destroy()
+      currentVersionSnapshotEditor.value = null
+    }
+  }
+})
 </script>
 
 <style scoped>
@@ -1592,6 +2624,35 @@ const handleSave = async () => {
   text-align: center;
   margin-top: 40px;
   font-size: 13px;
+}
+
+.toc-item {
+  font-size: 13px;
+  line-height: 1.6;
+  color: #595959;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+}
+
+.toc-item:hover {
+  background: #f0f5ff;
+  color: #1677ff;
+}
+
+.toc-item.active {
+  background: #e6f4ff;
+  color: #1677ff;
+  font-weight: 500;
+}
+
+.toc-item-text {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .editor-content-area {
@@ -1877,7 +2938,7 @@ const handleSave = async () => {
 
 .chat-meta {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   font-size: 12px;
   color: #8c8c8c;
 }
@@ -1890,7 +2951,9 @@ const handleSave = async () => {
 }
 
 .chat-time {
-  margin-left: 12px;
+  margin-left: 10px;
+  margin-right: 10px;
+  flex-shrink: 0;
 }
 
 .chat-bubble {
@@ -1975,6 +3038,107 @@ const handleSave = async () => {
 :deep(.ProseMirror) {
   outline: none !important;
 }
+
+:deep(.ProseMirror a) {
+  color: #1890ff;
+  text-decoration: underline;
+}
+
+:deep(.ProseMirror a:hover) {
+  color: #1677ff;
+}
+
+:deep(.ProseMirror .tableWrapper) {
+  overflow-x: auto;
+}
+
+:deep(.ProseMirror table) {
+  border-collapse: collapse;
+  table-layout: fixed;
+  width: 100%;
+  margin: 12px 0;
+}
+
+:deep(.ProseMirror td),
+:deep(.ProseMirror th) {
+  border: 1px solid #d9d9d9;
+  padding: 6px 8px;
+  vertical-align: top;
+  min-width: 80px;
+}
+
+:deep(.ProseMirror th) {
+  background: #fafafa;
+  font-weight: 600;
+}
+
+:deep(.ProseMirror td p),
+:deep(.ProseMirror th p) {
+  margin: 0;
+}
+:deep(.ProseMirror pre) {
+  position: relative;
+  background-color: #0f172a;
+  color: #e5e7eb;
+  padding: 12px 14px 12px 44px;
+  border-radius: 6px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: auto;
+  border: 1px solid #1e293b;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.3);
+  margin: 12px 0;
+}
+:deep(.ProseMirror pre::before) {
+  content: attr(data-line-numbers);
+  position: absolute;
+  top: 12px;
+  bottom: 12px;
+  left: 12px;
+  width: 28px;
+  padding-right: 6px;
+  border-right: 1px solid rgba(148, 163, 184, 0.5);
+  color: #64748b;
+  text-align: right;
+  white-space: pre;
+  font-size: 12px;
+  line-height: 1.6;
+  pointer-events: none;
+}
+:deep(.ProseMirror pre::after) {
+  content: attr(data-language);
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+:deep(.ProseMirror pre[data-language='plaintext']::after) {
+  content: '';
+}
+:deep(.ProseMirror pre[data-code-theme='light']) {
+  background-color: #f5f5f5;
+  color: #111827;
+  border-color: #e5e7eb;
+  box-shadow: none;
+}
+:deep(.ProseMirror pre[data-code-theme='light']::before) {
+  border-right-color: rgba(148, 163, 184, 0.35);
+  color: #9ca3af;
+}
+:deep(.ProseMirror pre[data-code-theme='bordered']) {
+  background-color: #ffffff;
+  color: #111827;
+  border-color: #e5e7eb;
+  box-shadow: none;
+}
+:deep(.ProseMirror pre code) {
+  padding: 0;
+  background: transparent;
+}
 :deep(.ProseMirror-yjs-cursor) {
   position: relative;
   margin-left: -1px;
@@ -1999,5 +3163,69 @@ const handleSave = async () => {
   user-select: none;
   white-space: nowrap;
   box-shadow: none;
+}
+
+:deep(.resizable-image-wrapper) {
+  position: relative;
+  display: inline-block;
+}
+
+:deep(.resizable-image-wrapper img) {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+:deep(.resizable-image-handle) {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #1890ff;
+  border: 1px solid #fff;
+  box-shadow: 0 0 0 1px rgba(24, 144, 255, 0.3);
+  cursor: se-resize;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+:deep(.resizable-image-wrapper.has-selection .resizable-image-handle) {
+  opacity: 1;
+}
+
+.version-preview-wrapper {
+  min-height: 400px;
+}
+
+.readonly-preview :deep(.tiptap-editor-content) {
+  padding: 24px 32px;
+}
+
+.version-compare-container {
+  display: flex;
+  gap: 16px;
+  min-height: 400px;
+}
+
+.version-compare-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.version-compare-header {
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.version-compare-editor {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.preview-empty {
+  padding: 24px 0;
+  text-align: center;
+  color: #999;
 }
 </style>

@@ -4,6 +4,9 @@ import type { ApiResponse } from '@/types'
 export interface DocumentDTO {
   id?: number
   title: string
+  originalDocumentType?: string
+  originalFilePath?: string
+  fileSize?: number
   summary?: string
   ownerId?: number
   ownerNickname?: string
@@ -60,6 +63,7 @@ export interface DocumentQueryDTO {
   status?: number
   isPublic?: boolean
   tags?: string
+  viewType?: string
   page?: number
   size?: number
 }
@@ -84,6 +88,12 @@ export interface DocumentResource {
   uploadTime?: string
 }
 
+export interface UploadImageResponse {
+  url: string
+  objectName: string
+  name: string
+}
+
 export const documentApi = {
   getDocumentDetail(documentId: number) {
     return request.get<ApiResponse<DocumentDTO>>(`/documents/${documentId}`)
@@ -105,10 +115,27 @@ export const documentApi = {
     return request.delete<ApiResponse<void>>(`/documents/${documentId}`)
   },
 
+  restoreDocument(documentId: number) {
+    return request.post<ApiResponse<void>>(`/documents/${documentId}/restore`)
+  },
+
+  deleteDocumentPermanently(documentId: number) {
+    return request.delete<ApiResponse<void>>(`/documents/${documentId}/permanent`)
+  },
+
   downloadDocument(documentId: number) {
     return request.get(`/documents/${documentId}/download`, {
       responseType: 'blob'
     })
+  },
+
+  downloadDocumentJson(documentId: number) {
+    return request.get<Blob>(`/documents/${documentId}/json-download`, {
+      // 通过 responseType: 'blob' 获取原始二进制数据
+      // 响应拦截器会返回 Blob 本身
+      // AxiosRequestConfig 在这里的类型不影响实际运行
+      responseType: 'blob' as any,
+    } as any)
   },
 
   updateDocumentJson(documentId: number, proseMirrorJson: string) {
@@ -125,6 +152,20 @@ export const documentApi = {
     return request.put<ApiResponse<DocumentSettingsDTO>>(
       `/documents/${documentId}/settings`,
       data
+    )
+  },
+
+  uploadDocumentImage(documentId: number, file: File) {
+    const formData = new FormData()
+    formData.append('file', file)
+    return request.post<ApiResponse<UploadImageResponse>>(
+      `/documents/${documentId}/images`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }
     )
   },
 
@@ -149,6 +190,12 @@ export const documentApi = {
 
   listDocumentVersions(documentId: number) {
     return request.get<ApiResponse<DocumentVersionDTO[]>>(`/documents/${documentId}/versions`)
+  },
+
+  getDocumentVersionSnapshot(documentId: number, versionNumber: number) {
+    return request.get<ApiResponse<string>>(
+      `/documents/${documentId}/versions/${versionNumber}/snapshot`
+    )
   },
 
   createDocumentVersion(
