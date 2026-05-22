@@ -1,0 +1,319 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "center",
+        "level": 1
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Vue 3 组合式 API 开发指南"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "一、什么是组合式 API"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "组合式 API 是 Vue 3 引入的一组新特性，旨在解决 Options API 在大型组件中的代码组织问题。它允许我们使用"
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "函数"
+        },
+        {
+          "type": "text",
+          "text": "来组织和复用逻辑代码。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "二、核心概念"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "2.1 setup 函数"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "setup 是组合式 API 的入口点，在组件创建之前执行。它接收两个参数："
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "textStyle",
+              "attrs": {
+                "color": "#1677ff",
+                "fontSize": null
+              }
+            }
+          ],
+          "text": "props"
+        },
+        {
+          "type": "text",
+          "text": " 和 "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "textStyle",
+              "attrs": {
+                "color": "#1677ff",
+                "fontSize": null
+              }
+            }
+          ],
+          "text": "context"
+        },
+        {
+          "type": "text",
+          "text": "。"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "javascript",
+        "theme": "dark"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "import { ref, reactive, computed, watch } from 'vue'\n\nexport default {\n  setup(props, context) {\n    // 响应式数据\n    const count = ref(0)\n    const state = reactive({\n      name: 'Vue 3',\n      version: '3.4.0'\n    })\n    \n    // 计算属性\n    const doubleCount = computed(() => count.value * 2)\n    \n    // 监听器\n    watch(count, (newValue, oldValue) => {\n      console.log(`count changed from ${oldValue} to ${newValue}`)\n    })\n    \n    return {\n      count,\n      state,\n      doubleCount\n    }\n  }\n}"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "2.2 响应式 API"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Vue 3 提供了多种创建响应式数据的方式："
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "ref()"
+        },
+        {
+          "type": "text",
+          "text": " - 用于基本类型的响应式数据"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "reactive()"
+        },
+        {
+          "type": "text",
+          "text": " - 用于对象的响应式数据"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "computed()"
+        },
+        {
+          "type": "text",
+          "text": " - 创建计算属性"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "watch()"
+        },
+        {
+          "type": "text",
+          "text": " - 监听数据变化"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "三、最佳实践"
+        }
+      ]
+    },
+    {
+      "type": "blockquote",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "text": "提示：使用组合式 API 时，建议将相关的逻辑代码组织在一起，而不是按照 Options API 的方式分散在 data、methods、computed 等选项中。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "更多详情请参考 "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "attrs": {
+                "href": "https://vuejs.org/guide/extras/composition-api-faq.html",
+                "target": "_blank",
+                "rel": "noopener noreferrer",
+                "class": null
+              }
+            }
+          ],
+          "text": "Vue 官方文档"
+        },
+        {
+          "type": "text",
+          "text": "。"
+        }
+      ]
+    },
+    {
+      "type": "horizontalRule"
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      }
+    }
+  ]
+}

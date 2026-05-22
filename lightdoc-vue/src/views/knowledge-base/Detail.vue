@@ -50,7 +50,7 @@
             <a-list
               :data-source="documents"
               :loading="loadingDocuments"
-              :pagination="documentPaginationConfig"
+              :pagination="false"
               class="document-list"
             >
               <template #renderItem="{ item }">
@@ -99,6 +99,20 @@
                 </a-list-item>
               </template>
             </a-list>
+            
+            <!-- 独立的分页组件 -->
+            <div v-if="documentPagination.total > 0" class="pagination-container" style="margin-top: 16px; text-align: right;">
+              <a-pagination
+                :current="documentPagination.current"
+                :page-size="documentPagination.pageSize"
+                :total="documentPagination.total"
+                :show-size-changer="true"
+                :show-quick-jumper="true"
+                :show-total="(total: number) => `共 ${total} 条`"
+                @change="handleDocumentPageChange"
+                @showSizeChange="handleDocumentPageSizeChange"
+              />
+            </div>
           </a-tab-pane>
           <a-tab-pane key="sub-knowledge-bases" tab="子知识库">
             <div class="tab-content-header">
@@ -244,30 +258,23 @@ const documentPagination = reactive({
   total: 0
 })
 
-const documentPaginationConfig = reactive({
-  current: documentPagination.current,
-  pageSize: documentPagination.pageSize,
-  total: documentPagination.total,
-  showSizeChanger: true,
-  showQuickJumper: true,
-  showTotal: (total: number) => `共 ${total} 条`,
-  onChange: (page: number, pageSize: number) => {
-    documentPagination.current = page
-    documentPagination.pageSize = pageSize
-    const kbId = Number(route.params.id)
-    if (kbId) {
-      loadDocuments(kbId)
-    }
-  },
-  onShowSizeChange: (current: number, size: number) => {
-    documentPagination.current = current
-    documentPagination.pageSize = size
-    const kbId = Number(route.params.id)
-    if (kbId) {
-      loadDocuments(kbId)
-    }
+const handleDocumentPageChange = (page: number, pageSize: number) => {
+  documentPagination.current = page
+  documentPagination.pageSize = pageSize
+  const kbId = Number(route.params.id)
+  if (kbId) {
+    loadDocuments(kbId)
   }
-})
+}
+
+const handleDocumentPageSizeChange = (current: number, size: number) => {
+  documentPagination.current = 1
+  documentPagination.pageSize = size
+  const kbId = Number(route.params.id)
+  if (kbId) {
+    loadDocuments(kbId)
+  }
+}
 
 // 表单数据
 const settingsForm = reactive({
@@ -324,7 +331,6 @@ const loadDocuments = async (kbId: number) => {
     if (response.code === 200 && response.data) {
       documents.value = response.data.records
       documentPagination.total = response.data.total
-      documentPaginationConfig.total = response.data.total
     } else {
       message.error(response.message || '加载文档列表失败')
     }

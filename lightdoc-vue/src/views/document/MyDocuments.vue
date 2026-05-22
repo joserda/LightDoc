@@ -18,7 +18,7 @@
       <a-list
         :data-source="documents"
         :loading="loading"
-        :pagination="paginationConfig"
+        :pagination="false"
         class="document-list"
       >
         <template #renderItem="{ item }">
@@ -90,6 +90,20 @@
           </a-list-item>
         </template>
       </a-list>
+      
+      <!-- 独立的分页组件 -->
+      <div v-if="pagination.total > 0" class="pagination-container" style="margin-top: 16px; text-align: right;">
+        <a-pagination
+          :current="pagination.current"
+          :page-size="pagination.pageSize"
+          :total="pagination.total"
+          :show-size-changer="true"
+          :show-quick-jumper="true"
+          :show-total="(total: number) => `共 ${total} 条`"
+          @change="handlePageChange"
+          @showSizeChange="handlePageSizeChange"
+        />
+      </div>
     </div>
 
     <a-modal
@@ -202,24 +216,17 @@ const pagination = reactive({
   total: 0
 })
 
-const paginationConfig = reactive({
-  current: pagination.current,
-  pageSize: pagination.pageSize,
-  total: pagination.total,
-  showSizeChanger: true,
-  showQuickJumper: true,
-  showTotal: (total: number) => `共 ${total} 条`,
-  onChange: (page: number, pageSize: number) => {
-    pagination.current = page
-    pagination.pageSize = pageSize
-    loadDocuments()
-  },
-  onShowSizeChange: (current: number, size: number) => {
-    pagination.current = current
-    pagination.pageSize = size
-    loadDocuments()
-  }
-})
+const handlePageChange = (page: number, pageSize: number) => {
+  pagination.current = page
+  pagination.pageSize = pageSize
+  loadDocuments()
+}
+
+const handlePageSizeChange = (current: number, size: number) => {
+  pagination.current = 1
+  pagination.pageSize = size
+  loadDocuments()
+}
 
 const showCreateModal = ref(false)
 const newDocument = reactive({
@@ -312,7 +319,6 @@ const loadDocuments = async () => {
     if (response.code === 200 && response.data) {
       documents.value = response.data.records
       pagination.total = response.data.total
-      paginationConfig.total = response.data.total
     } else {
       message.error(response.message || '加载文档列表失败')
     }

@@ -1,0 +1,359 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "center",
+        "level": 1
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "LightDoc API 接口文档"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "一、认证接口"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "1.1 用户登录"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "请求方式："
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "textStyle",
+              "attrs": {
+                "color": "#52c41a",
+                "fontSize": null
+              }
+            }
+          ],
+          "text": "POST"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "接口地址："
+        },
+        {
+          "type": "text",
+          "text": "/api/auth/login"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "json",
+        "theme": "dark"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "// 请求参数\n{\n  \"username\": \"admin\",\n  \"password\": \"123456\"\n}\n\n// 响应结果\n{\n  \"code\": 200,\n  \"message\": \"登录成功\",\n  \"data\": {\n    \"token\": \"eyJhbGciOiJIUzI1NiIs...\",\n    \"user\": {\n      \"id\": 1,\n      \"username\": \"admin\",\n      \"nickname\": \"管理员\"\n    }\n  }\n}"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "二、文档接口"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "2.1 创建文档"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "请求方式："
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "textStyle",
+              "attrs": {
+                "color": "#52c41a",
+                "fontSize": null
+              }
+            }
+          ],
+          "text": "POST"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "接口地址："
+        },
+        {
+          "type": "text",
+          "text": "/api/documents"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "json",
+        "theme": "dark"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "// 请求参数\n{\n  \"title\": \"我的文档\",\n  \"proseMirrorJson\": \"{\\\"type\\\": \\\"doc\\\", ...}\",\n  \"knowledgeBaseId\": 1,\n  \"tags\": \"技术,教程\"\n}\n\n// 响应结果\n{\n  \"code\": 200,\n  \"message\": \"创建成功\",\n  \"data\": {\n    \"id\": 123,\n    \"title\": \"我的文档\",\n    \"createdAt\": \"2025-01-15 10:30:00\"\n  }\n}"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "2.2 获取文档详情"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "请求方式："
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "textStyle",
+              "attrs": {
+                "color": "#1677ff",
+                "fontSize": null
+              }
+            }
+          ],
+          "text": "GET"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "接口地址："
+        },
+        {
+          "type": "text",
+          "text": "/api/documents/{documentId}"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "json",
+        "theme": "light"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "// 响应结果\n{\n  \"code\": 200,\n  \"message\": \"获取成功\",\n  \"data\": {\n    \"id\": 123,\n    \"title\": \"我的文档\",\n    \"proseMirrorJson\": \"{\\\"type\\\": \\\"doc\\\", ...}\",\n    \"ownerId\": 1,\n    \"canEdit\": true,\n    \"canComment\": true\n  }\n}"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "三、协同编辑接口"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "WebSocket 地址："
+        },
+        {
+          "type": "text",
+          "text": "ws://localhost:8080/api/ws/collaborate/{documentId}"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "连接参数："
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "• userId: 用户ID"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "• token: 认证令牌"
+        }
+      ]
+    },
+    {
+      "type": "horizontalRule"
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      }
+    }
+  ]
+}

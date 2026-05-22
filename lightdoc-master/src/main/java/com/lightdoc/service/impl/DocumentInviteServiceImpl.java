@@ -127,11 +127,12 @@ public class DocumentInviteServiceImpl implements DocumentInviteService {
         
         // 10. 发送邀请通知
         try {
+            String inviterName = inviter.getNickname() != null ? inviter.getNickname() : inviter.getUsername();
             notificationUtil.sendDocumentInvite(
                 dto.getUserId(),
                 documentId,
                 "文档邀请",
-                inviter.getNickname() + " 邀请您加入文档《" + document.getTitle() + "》"
+                inviterName + " 邀请您加入文档《" + document.getTitle() + "》"
             );
             log.info("已向用户 {} 发送文档邀请通知", dto.getUserId());
         } catch (Exception e) {

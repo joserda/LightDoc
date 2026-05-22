@@ -954,12 +954,10 @@ const TextStyleMark = Mark.create({
       color: {
         default: null,
         parseHTML: element => (element as HTMLElement).style.color || null,
-        renderHTML: () => ({}),
       },
       fontSize: {
         default: null,
         parseHTML: element => (element as HTMLElement).style.fontSize || null,
-        renderHTML: () => ({}),
       },
     }
   },
@@ -974,77 +972,75 @@ const TextStyleMark = Mark.create({
     const attrs = HTMLAttributes as any
     const color = attrs.color as string | null | undefined
     const fontSize = attrs.fontSize as string | null | undefined
-    const { color: _c, fontSize: _f, ...rest } = attrs
-    const styles: string[] = []
-    if (rest.style) {
-      styles.push(String(rest.style))
+    
+    if (!color && !fontSize) {
+      return ['span', {}, 0]
     }
+    
+    const styles: string[] = []
     if (color) {
-      styles.push(`color: ${color};`)
+      styles.push(`color: ${color}`)
     }
     if (fontSize) {
-      styles.push(`font-size: ${fontSize};`)
+      styles.push(`font-size: ${fontSize}`)
     }
-    const mergedStyle = styles.filter(Boolean).join(' ')
-    return ['span', { ...rest, ...(mergedStyle ? { style: mergedStyle } : {}) }, 0]
+    
+    const styleAttr = styles.join('; ')
+    return ['span', { style: styleAttr }, 0]
   },
   addCommands() {
     return {
       setTextColor:
         (color: string | null) =>
-        ({ chain, editor }: any) => {
+        ({ commands, editor }: any) => {
           const current = (editor.getAttributes('textStyle') as any) || {}
           const next = {
             color,
             fontSize: current.fontSize ?? null,
           }
-          let c = chain().setMark('textStyle', next)
           if (!next.color && !next.fontSize) {
-            c = c.unsetMark('textStyle')
+            return commands.unsetMark('textStyle')
           }
-          return c.run()
+          return commands.setMark('textStyle', next)
         },
       setFontSize:
         (fontSize: string | null) =>
-        ({ chain, editor }: any) => {
+        ({ commands, editor }: any) => {
           const current = (editor.getAttributes('textStyle') as any) || {}
           const next = {
             color: current.color ?? null,
             fontSize,
           }
-          let c = chain().setMark('textStyle', next)
           if (!next.color && !next.fontSize) {
-            c = c.unsetMark('textStyle')
+            return commands.unsetMark('textStyle')
           }
-          return c.run()
+          return commands.setMark('textStyle', next)
         },
       unsetTextColor:
         () =>
-        ({ chain, editor }: any) => {
+        ({ commands, editor }: any) => {
           const current = (editor.getAttributes('textStyle') as any) || {}
           const next = {
             color: null,
             fontSize: current.fontSize ?? null,
           }
-          let c = chain().setMark('textStyle', next)
           if (!next.color && !next.fontSize) {
-            c = c.unsetMark('textStyle')
+            return commands.unsetMark('textStyle')
           }
-          return c.run()
+          return commands.setMark('textStyle', next)
         },
       unsetFontSize:
         () =>
-        ({ chain, editor }: any) => {
+        ({ commands, editor }: any) => {
           const current = (editor.getAttributes('textStyle') as any) || {}
           const next = {
             color: current.color ?? null,
             fontSize: null,
           }
-          let c = chain().setMark('textStyle', next)
           if (!next.color && !next.fontSize) {
-            c = c.unsetMark('textStyle')
+            return commands.unsetMark('textStyle')
           }
-          return c.run()
+          return commands.setMark('textStyle', next)
         },
     } as any
   },
@@ -1619,7 +1615,7 @@ const handleInviteUser = async (userId: number) => {
   try {
     const res = await documentInviteApi.inviteUser(docId, {
       userId,
-      permissionLevel: 0,
+      permissionLevel: 2,
     })
     if (res.code === 200 && res.data) {
       message.success('邀请已发送')
@@ -1877,9 +1873,11 @@ onMounted(async () => {
       canManageMembers.value = !!data.canManageMembers
       canChangeVisibility.value = !!data.canChangeVisibility
       isOwner.value = !!data.isOwner
+      console.log('文档详情加载成功, proseMirrorJson:', data.proseMirrorJson ? '存在' : '不存在')
       if (data.proseMirrorJson) {
         try {
           initialContent = JSON.parse(data.proseMirrorJson)
+          console.log('解析 proseMirrorJson 成功, initialContent:', initialContent)
         } catch (e) {
           console.error('解析文档内容失败', e)
         }
@@ -2017,38 +2015,76 @@ onMounted(async () => {
   let seedRetry = 0
   let seedScheduled = false
   const trySeed = () => {
-    if (seeded) return
-    if (yXmlFragment.toString().length !== 0) return
+    if (seeded) {
+      console.log('已经初始化过，跳过')
+      return
+    }
+    
+    const yXmlFragmentContent = yXmlFragment.toString()
+    const hasYjsContent = yXmlFragmentContent.length > 0 && yXmlFragmentContent !== '<>'
+    
+    console.log('trySeed 检查:', {
+      yXmlFragmentContent: yXmlFragmentContent.substring(0, 100),
+      hasYjsContent,
+      initialContent: initialContent ? '存在' : '不存在'
+    })
+    
+    if (hasYjsContent) {
+      console.log('Yjs 文档已有内容，跳过初始化')
+      return
+    }
 
     const clientIds = Array.from(_awareness.getStates().keys())
+    console.log('当前在线客户端:', clientIds.length, clientIds)
+    
     if (clientIds.length === 1 && seedRetry === 0) {
       seedRetry = 1
+      console.log('只有一个客户端，延迟1.5秒后重试')
       setTimeout(trySeed, 1500)
       return
     }
 
     const leaderClientId = clientIds.length > 0 ? Math.min(...clientIds) : _awareness.clientID
-    if (_awareness.clientID !== leaderClientId) return
+    if (_awareness.clientID !== leaderClientId) {
+      console.log('不是leader客户端，跳过初始化')
+      return
+    }
 
     seeded = true
+    console.log('开始初始化文档内容, initialContent:', initialContent ? '存在' : '不存在')
     if (initialContent) {
+      console.log('设置导入的内容')
       editorInstance.commands.setContent(initialContent)
     } else {
+      console.log('设置默认内容')
       editorInstance.commands.setContent('<h2>欢迎使用 Light Doc</h2><p>开始编辑您的文档...</p>')
     }
     scheduleTocBuild()
   }
+  
   _provider.on('synced', (isSynced: boolean) => {
+    console.log('synced 事件触发, isSynced:', isSynced)
     if (isSynced) {
       hasSynced = true
     }
-    if (!isSynced || seeded || seedScheduled) return
+    if (!isSynced || seeded || seedScheduled) {
+      console.log('跳过初始化:', { isSynced, seeded, seedScheduled })
+      return
+    }
     seedScheduled = true
     setTimeout(() => {
       seedScheduled = false
       trySeed()
     }, 2000)
   })
+  
+  // 添加超时机制：如果5秒内没有触发 synced 事件，也尝试初始化
+  setTimeout(() => {
+    if (!seeded && !seedScheduled) {
+      console.log('超时触发初始化')
+      trySeed()
+    }
+  }, 5000)
 
   _ydoc.on('update', () => {
     scheduleAutosave()

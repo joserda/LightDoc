@@ -1,0 +1,265 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "center",
+        "level": 1
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Git 版本控制入门教程"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "第一章：Git 简介"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Git 是目前世界上最先进的"
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "textStyle",
+              "attrs": {
+                "color": "#f5222d",
+                "fontSize": null
+              }
+            },
+            {
+              "type": "bold"
+            }
+          ],
+          "text": "分布式版本控制系统"
+        },
+        {
+          "type": "text",
+          "text": "。它由 Linus Torvalds 在 2005 年创建，用于管理 Linux 内核开发。"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "第二章：基本配置"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "安装 Git 后，需要进行基本配置："
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash",
+        "theme": "dark"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "# 设置用户名\ngit config --global user.name \"Your Name\"\n\n# 设置邮箱\ngit config --global user.email \"your.email@example.com\"\n\n# 查看配置\ngit config --list"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "第三章：基本操作"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "3.1 创建仓库"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash",
+        "theme": "light"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "# 初始化新仓库\ngit init\n\n# 克隆远程仓库\ngit clone https://github.com/user/repo.git"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "3.2 提交更改"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash",
+        "theme": "bordered"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "# 查看状态\ngit status\n\n# 添加文件到暂存区\ngit add filename\n# 或添加所有文件\ngit add .\n\n# 提交更改\ngit commit -m \"提交说明\""
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "3.3 分支操作"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "分支是 Git 最强大的功能之一："
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash",
+        "theme": "dark"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "# 创建新分支\ngit branch feature-branch\n\n# 切换分支\ngit checkout feature-branch\n# 或创建并切换\ngit checkout -b feature-branch\n\n# 合并分支\ngit merge feature-branch\n\n# 删除分支\ngit branch -d feature-branch"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "textAlign": "left",
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "第四章：远程仓库"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash",
+        "theme": "dark"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "# 添加远程仓库\ngit remote add origin https://github.com/user/repo.git\n\n# 推送到远程\ngit push -u origin main\n\n# 从远程拉取\ngit pull origin main"
+        }
+      ]
+    },
+    {
+      "type": "blockquote",
+      "content": [
+        {
+          "type": "paragraph",
+          "attrs": {
+            "textAlign": null
+          },
+          "content": [
+            {
+              "type": "text",
+              "marks": [
+                {
+                  "type": "bold"
+                }
+              ],
+              "text": "小贴士："
+            },
+            {
+              "type": "text",
+              "text": "养成频繁提交的习惯，每次完成一个小功能就提交一次，这样更容易追踪和回滚。"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "horizontalRule"
+    },
+    {
+      "type": "paragraph",
+      "attrs": {
+        "textAlign": null
+      }
+    }
+  ]
+}
